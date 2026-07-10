@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Area Riservata Farmacie - GPP Health</title>
+    <!-- Carichiamo la libreria ufficiale PDF.js di Mozilla per i moduli ed il rendering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
     <style>
@@ -20,6 +21,7 @@
 </head>
 <body>
 
+    <!-- SCHERMATA DI ACCESSO (LOGIN CODICE CLIENTE) -->
     <div id="schermataAccesso">
         <div class="login-container">
             <h1>Area Ordini Farmacie</h1>
@@ -29,6 +31,7 @@
         </div>
     </div>
 
+    <!-- SCHERMATA DI COMPILAZIONE INTEGRATA -->
     <div id="schermataCompilazione" style="display:none; flex-direction: column; width: 100%;">
         <div class="header">
             <div>
@@ -40,10 +43,8 @@
     </div>
 
     <script>
-        // Configurazione globale del Worker richiesto da PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // Database completo delle anagrafiche farmacie
         const databaseClienti = {
             "P15053": { "RagioneSociale": "FARM SAN MICHELE DR D. TONON", "PartitaIva": "02331550224", "IBAN": "IT49F0813935410000002117022", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "P15672": { "RagioneSociale": "FARM ALL'ANGELO SNC DI TONFOLINI M.", "PartitaIva": "01867580225", "IBAN": "IT30Y0200834730000003823056", "SDI": "3RB98ZT", "Tel": "3481636393", "Email": "farmaciaallangelo@gmail.com" },
@@ -80,7 +81,7 @@
             "859643": { "RagioneSociale": "FARM SELLA GROSSRUBATSCHER DR F.", "PartitaIva": "02716510215", "IBAN": "IT15L0823858680000302022508", "SDI": "", "Tel": "0471796125", "Email": "ferdinando.grossrubatscher.bolzano@farmarete.it" },
             "866829": { "RagioneSociale": "FARM BIFARINI SNC BIFARINI/HABASH", "PartitaIva": "02608720229", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0463722704", "Email": "farmaciabifarini@aruba.it" },
             "866830": { "RagioneSociale": "FARM CAPPELLETTI MEZZOCORONA SNC", "PartitaIva": "02642820225", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0461601384", "Email": "info@farmaciacappellettimezzocorona.com" },
-            "867080": { "RagioneSociale": "FARM PARACELSUS SRL DR K.PICHLER", "PartitaIva": "03124720214", "IBAN": "IT04H0585659110001571471749", "SDI": "", "Tel": "042764940", "Email": "" },
+            "867080": { "RagioneSociale": "FARM PARACELSUS SRL DR K.PICHLER", "PartitaIva": "03124720214", "IBAN": "IT04H0585659110001571471749", "SDI": "", "Tel": "0472764940", "Email": "" },
             "865602": { "RagioneSociale": "FARM KRON APOTHEKE SNC", "PartitaIva": "02975840212", "IBAN": "IT19N0604559040000005006402", "SDI": "", "Tel": "0474548440", "Email": "farmaciakronapotheke@gmail.com" },
             "866165": { "RagioneSociale": "FARM BRETTA DR GIORGIO & C SNC", "PartitaIva": "02568670224", "IBAN": "IT92F0802405625000005091640", "SDI": "", "Tel": "0465442174", "Email": "" },
             "863044": { "RagioneSociale": "FARM CENTRALE U.NIEDEREGGER &CO SAS", "PartitaIva": "02977150214", "IBAN": "IT94J0813358593000040104935", "SDI": "", "Tel": "0473236826", "Email": "" },
@@ -99,35 +100,44 @@
 
             const dati = databaseClienti[codice];
             
-            // Transizione interfaccia: Nascondi il login e mostra lo spazio di compilazione
             document.getElementById("schermataAccesso").style.display = "none";
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("pdf-viewer-container").style.display = "block";
             document.getElementById("info-farmacia").innerText = dati.RagioneSociale + " (Cod: " + codice + ")";
 
-            // PUNTO CRITICO RISOLTO: puntiamo direttamente all'URL assoluto del listino ospitato su GitHub Pages
             const urlPdf = "https://gppitaly.github.io/listino/listino.pdf"; 
 
-            // Avvio del motore di caricamento PDF.js
             pdfjsLib.getDocument(urlPdf).promise.then(function(pdf) {
                 const container = document.getElementById("pdf-viewer-container");
-                container.innerHTML = ""; // Pulizia preventiva del container
+                container.innerHTML = ""; 
                 
-                // Iterazione per effettuare il render di tutte le pagine del listino
-                for (let pageNum = 1; pageNum <= pdf.numPages; pagePages++) {
+                // CORRETTO: Adesso cicla esattamente su TUTTE le pagine reali del file
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     pdf.getPage(pageNum).then(function(page) {
-                        const scale = 1.5;
+                        // OTTIMIZZAZIONE NITIDEZZA: Rendering in alta densità di pixel
+                        const scale = 2.0; 
                         const viewport = page.getViewport({ scale: scale });
 
                         const canvas = document.createElement('canvas');
                         const context = canvas.getContext('2d');
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
+                        
+                        // Bilanciamento della risoluzione interna del canvas per schermi retina/HD
+                        const outputScale = window.devicePixelRatio || 1;
+                        canvas.width = Math.floor(viewport.width * outputScale);
+                        canvas.height = Math.floor(viewport.height * outputScale);
+                        canvas.style.width = Math.floor(viewport.width) + "px";
+                        canvas.style.height = Math.floor(viewport.height) + "px";
+
+                        const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
                         container.appendChild(canvas);
 
-                        const renderContext = { canvasContext: context, viewport: viewport };
+                        const renderContext = { 
+                            canvasContext: context, 
+                            viewport: viewport,
+                            transform: transform
+                        };
+                        
                         page.render(renderContext).promise.then(function() {
-                            // Estrazione dei campi interattivi e compilazione automatica con i dati corretti
                             page.getFieldObjects().then(function(fields) {
                                 Object.keys(fields).forEach(fieldName => {
                                     if(fieldName.includes("CodiceCliente")) SetPdfField(fields[fieldName], codice);
@@ -143,12 +153,11 @@
                     });
                 }
             }).catch(function(error) {
-                alert("Errore nel caricamento del file listino.pdf. Verifica che sia presente nel repository all'indirizzo configurato: " + error.message);
+                alert("Errore nel caricamento del file listino.pdf: " + error.message);
             });
         }
 
         function SetPdfField(fieldObj, value) {
-            // Iniettiamo programmaticamente i valori testuali all'interno dei moduli del PDF
             if(fieldObj && fieldObj[0]) {
                 fieldObj[0].value = value;
             }
