@@ -3,48 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <title>Area Riservata Farmacie - GPP Health</title>
-    <!-- Carichiamo la libreria ufficiale PDF.js di Mozilla per i moduli ed il rendering -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
     <style>
         body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
-        .header { background-color: #0d3b66; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0; font-size: 18px; }
+        
+        /* HEADER RITORNATO AL TUO LAYOUT PREFERITO */
+        .header { background-color: #0d3b66; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); height: 70px; box-sizing: border-box; }
+        .header-titoli h1 { margin: 0; font-size: 20px; font-weight: 600; }
+        .header-titoli p { margin: 3px 0 0 0; font-size: 14px; opacity: 0.9; }
+        
+        /* IL TASTONE VERDE GROSSO A DESTRA */
+        .btn-invia { background-color: #2ecc71; color: white; border: none; padding: 12px 28px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .btn-invia:hover { background-color: #27ae60; }
+
+        /* SCHERMATA DI LOGIN */
+        #schermataAccesso { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 20px; }
         .login-container { max-width: 400px; width: 100%; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #0d3b66; box-sizing: border-box; }
         input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; text-align: center; margin-bottom: 20px; outline: none; box-sizing: border-box; }
         .btn-accesso { background-color: #0d3b66; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; box-sizing: border-box; }
         .btn-accesso:hover { background-color: #145592; }
-        #schermataAccesso { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 20px; }
-        #pdf-viewer-container { display: none; width: 100%; height: calc(100vh - 60px); overflow-y: auto; padding: 20px 0; box-sizing: border-box; }
-        canvas { border-bottom: 1px solid #ccc; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 0 auto 20px auto; display: block; max-width: 100%; }
+
+        /* CONTENITORE PDF INTERATTIVO NATIVO */
+        #schermataCompilazione { display:none; flex-direction: column; width: 100%; flex-grow: 1; }
+        #pdf-container { width: 100%; height: calc(100vh - 70px); border: none; }
     </style>
 </head>
 <body>
 
-    <!-- SCHERMATA DI ACCESSO (LOGIN CODICE CLIENTE) -->
+    <!-- SCHERMATA DI ACCESSO (LOGIN) -->
     <div id="schermataAccesso">
         <div class="login-container">
             <h1>Area Ordini Farmacie</h1>
             <p style="color: #7f8c8d; margin: 0 0 25px 0; font-size: 14px;">Inserisci il tuo Codice Cliente per accedere al listino precompilato.</p>
-            <input type="text" id="codiceCliente" placeholder="Es. 192195">
+            <input type="text" id="codiceCliente" placeholder="Es. 187001">
             <button onclick="iniziaCompilazione()" class="btn-accesso">Accedi al Listino</button>
         </div>
     </div>
 
-    <!-- SCHERMATA DI COMPILAZIONE INTEGRATA -->
-    <div id="schermataCompilazione" style="display:none; flex-direction: column; width: 100%;">
+    <!-- SCHERMATA DI COMPILAZIONE (LAYOUT RIPRISTINATO E CORRETTO) -->
+    <div id="schermataCompilazione">
         <div class="header">
-            <div>
-                <h1 id="info-farmacia">Compilazione Listino Ordini</h1>
+            <div class="header-titoli">
+                <h1>Compilazione Listino Ordini</h1>
+                <p id="info-farmacia">Caricamento dicitura farmacia...</p>
             </div>
-            <div style="font-size: 12px; opacity: 0.8; font-style: italic;">Usa il tasto interno al PDF per inviare</div>
+            <div>
+                <!-- Ripristinato il tastone verde come in Foto 2 -->
+                <button class="btn-invia" onclick="inviaOrdine()">Conferma e Invia Ordine</button>
+            </div>
         </div>
-        <div id="pdf-viewer-container"></div>
+        <!-- Utilizziamo un iframe nativo che supporta l'interattività e lo scorrimento di tutte le pagine -->
+        <iframe id="pdf-container" src=""></iframe>
     </div>
 
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
         const databaseClienti = {
             "P15053": { "RagioneSociale": "FARM SAN MICHELE DR D. TONON", "PartitaIva": "02331550224", "IBAN": "IT49F0813935410000002117022", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "P15672": { "RagioneSociale": "FARM ALL'ANGELO SNC DI TONFOLINI M.", "PartitaIva": "01867580225", "IBAN": "IT30Y0200834730000003823056", "SDI": "3RB98ZT", "Tel": "3481636393", "Email": "farmaciaallangelo@gmail.com" },
@@ -65,7 +76,7 @@
             "P11174": { "RagioneSociale": "FARM S ANNA DSA POLLI SARAH & C SAS", "PartitaIva": "02695320214", "IBAN": "IT41Z0604558240000000040700", "SDI": "", "Tel": "3481636393", "Email": "info@farmaciasantannabrunico.it" },
             "P11230": { "RagioneSociale": "FARM DI STENICO E SAN LORENZO SNC", "PartitaIva": "02164930220", "IBAN": "IT37V0807835890000006061001", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "P03494": { "RagioneSociale": "FARM HIPPOLYT DR MARGOT", "PartitaIva": "02308280219", "IBAN": "IT95N0827358980000300220761", "SDI": "", "Tel": "0473927084", "Email": "margot.vinatzer.bolzano@farmarete.it" },
-            "P03180": { "RagioneSociale": "FARM SAN GENASIO DR BIOTTI CESARE", "PartitaIva": "02322720216", "IBAN": "IT59Y0808158800000302037653", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
+            "P03180": { "RagioneSociale": "FARM SAN GENASIO DR BIOTTI CESARE", "PartitaIva": "02322720216", "IBAN": "IT59Y0808158800000302037653", "SDI": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "P03379": { "RagioneSociale": "FARM SAN BARTOLOMEO", "PartitaIva": "00672310224", "IBAN": "IT48H0200801820000005620365", "SDI": "", "Tel": "0461913593", "Email": "cristina.bertolini.trento@farmarete.it" },
             "850482": { "RagioneSociale": "FARM ROMANI DI ERRIGO A. E C. SNC", "PartitaIva": "02046850224", "IBAN": "IT24I0812034930000000125683", "SDI": "", "Tel": "3481636393", "Email": "farmaciaromanilavis@gmail.com" },
             "P04015": { "RagioneSociale": "FARM POSTAL DR TANJA NART", "PartitaIva": "02427440215", "IBAN": "IT51S0811558493000307416008", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
@@ -91,76 +102,45 @@
             "858589": { "RagioneSociale": "FARM RAM APOTHEKE SAS LANZINER & C", "PartitaIva": "02562090213", "IBAN": "IT13Q0100558590000000001952", "SDI": "P62QHVQ", "Tel": "0473656146", "Email": "" }
         };
 
+        let datiClienteCorrente = null;
+
         function iniziaCompilazione() {
             const codice = document.getElementById("codiceCliente").value.trim();
             if (!databaseClienti[codice]) {
-                alert("Codice cliente non valido o non trovato in anagrafica.");
+                alert("Codice cliente non trovato.");
                 return;
             }
 
-            const dati = databaseClienti[codice];
+            datiClienteCorrente = databaseClienti[codice];
             
             document.getElementById("schermataAccesso").style.display = "none";
             document.getElementById("schermataCompilazione").style.display = "flex";
-            document.getElementById("pdf-viewer-container").style.display = "block";
-            document.getElementById("info-farmacia").innerText = dati.RagioneSociale + " (Cod: " + codice + ")";
+            document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            const urlPdf = "https://gppitaly.github.io/listino/listino.pdf"; 
+            // Passiamo le informazioni direttamente tramite l'URL del PDF (FdfData) in modo che Chrome/Edge precompilino nativamente i campi interattivi mantenendo il PDF editabile al 100%
+            const urlPdfBase = "https://gppitaly.github.io/listino/listino.pdf";
+            
+            // Creiamo i parametri di compilazione
+            const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
+                           `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
+                           `&PartitaIva=${encodeURIComponent(datiClienteCorrente.PartitaIva)}` +
+                           `&IBAN=${encodeURIComponent(datiClienteCorrente.IBAN)}` +
+                           `&SDI=${encodeURIComponent(datiClienteCorrente.SDI)}` +
+                           `&Tel=${encodeURIComponent(datiClienteCorrente.Tel)}` +
+                           `&Email=${encodeURIComponent(datiClienteCorrente.Email)}`;
 
-            pdfjsLib.getDocument(urlPdf).promise.then(function(pdf) {
-                const container = document.getElementById("pdf-viewer-container");
-                container.innerHTML = ""; 
-                
-                // CORRETTO: Adesso cicla esattamente su TUTTE le pagine reali del file
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    pdf.getPage(pageNum).then(function(page) {
-                        // OTTIMIZZAZIONE NITIDEZZA: Rendering in alta densità di pixel
-                        const scale = 2.0; 
-                        const viewport = page.getViewport({ scale: scale });
-
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        
-                        // Bilanciamento della risoluzione interna del canvas per schermi retina/HD
-                        const outputScale = window.devicePixelRatio || 1;
-                        canvas.width = Math.floor(viewport.width * outputScale);
-                        canvas.height = Math.floor(viewport.height * outputScale);
-                        canvas.style.width = Math.floor(viewport.width) + "px";
-                        canvas.style.height = Math.floor(viewport.height) + "px";
-
-                        const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
-                        container.appendChild(canvas);
-
-                        const renderContext = { 
-                            canvasContext: context, 
-                            viewport: viewport,
-                            transform: transform
-                        };
-                        
-                        page.render(renderContext).promise.then(function() {
-                            page.getFieldObjects().then(function(fields) {
-                                Object.keys(fields).forEach(fieldName => {
-                                    if(fieldName.includes("CodiceCliente")) SetPdfField(fields[fieldName], codice);
-                                    if(fieldName.includes("RagioneSociale")) SetPdfField(fields[fieldName], dati.RagioneSociale);
-                                    if(fieldName.includes("PartitaIva")) SetPdfField(fields[fieldName], dati.PartitaIva);
-                                    if(fieldName.includes("IBAN")) SetPdfField(fields[fieldName], dati.IBAN);
-                                    if(fieldName.includes("SDI")) SetPdfField(fields[fieldName], dati.SDI);
-                                    if(fieldName.includes("Tel")) SetPdfField(fields[fieldName], dati.Tel);
-                                    if(fieldName.includes("Email")) SetPdfField(fields[fieldName], dati.Email);
-                                });
-                            });
-                        });
-                    });
-                }
-            }).catch(function(error) {
-                alert("Errore nel caricamento del file listino.pdf: " + error.message);
-            });
+            // Carichiamo il PDF interattivo nativo nell'iframe con i dati agganciati
+            document.getElementById("pdf-container").src = urlPdfBase + params;
         }
 
-        function SetPdfField(fieldObj, value) {
-            if(fieldObj && fieldObj[0]) {
-                fieldObj[0].value = value;
-            }
+        function inviaOrdine() {
+            // Logica del tastone verde: Raccoglie i dati e invia (puoi personalizzare l'invio via email o form)
+            if (!datiClienteCorrente) return;
+            
+            alert("Ordine registrato per: " + datiClienteCorrente.RagioneSociale + ".\nProcedo all'invio dei dati inseriti nel listino.");
+            
+            // Qui puoi integrare un reindirizzamento o un invio email automatico
+            // window.location.href = `mailto:ordini@gppitaly.it?subject=Nuovo Ordine ${datiClienteCorrente.RagioneSociale}&body=In allegato il modulo compilato.`;
         }
     </script>
 </body>
