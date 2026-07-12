@@ -78,7 +78,7 @@
             "P03379": { "RagioneSociale": "FARM SAN BARTOLOMEO", "PartitaIva": "00672310224", "IBAN": "IT48H0200801820000005620365", "SDI": "", "Tel": "0461913593", "Email": "cristina.bertolini.trento@farmarete.it" },
             "850482": { "RagioneSociale": "FARM ROMANI DI ERRIGO A. E C. SNC", "PartitaIva": "02046850224", "IBAN": "IT24I0812034930000000125683", "SDI": "", "Tel": "3481636393", "Email": "farmaciaromanilavis@gmail.com" },
             "P04015": { "RagioneSociale": "FARM POSTAL DR TANJA NART", "PartitaIva": "02427440215", "IBAN": "IT51S0811558493000307416008", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "P04154": { "RagioneSociale": "FARM SARNTAL DR REGENSBERGER", "PartitaIva": "02248070217", "IBAN": "IT59S0823358870000300009181", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
+            "P04154": { "RagioneSociale": "FARM SARNTAL DR REGENSBERGER", "PartitaIva": "02248070217", "IBAN": "IT59S0823358870000300009181", "SDI": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "851936": { "RagioneSociale": "MAGAFARMA SRL", "PartitaIva": "02345010223", "IBAN": "IT22X0801634790000036022998", "SDI": "M5UXCR1", "Tel": "0465735159", "Email": "info@gagliardifarmacia.it" },
             "856717": { "RagioneSociale": "FARM APOTECA ALTA BADIA SNC", "PartitaIva": "02932630219", "IBAN": "IT22A0306958183100000000363", "SDI": "", "Tel": "0471847152", "Email": "renzo@farmaonline.eu" },
             "856596": { "RagioneSociale": "FARM VINOTTI SNC DI MARINCHEL & C", "PartitaIva": "02491630220", "IBAN": "IT11U0826305514000000332020", "SDI": "", "Tel": "0463468116", "Email": "" },
@@ -89,7 +89,7 @@
             "859799": { "RagioneSociale": "FARM DOTT GIANLUCA ASCANIO &C SNC", "PartitaIva": "02465700223", "IBAN": "IT41W0816335750000110300389", "SDI": "", "Tel": "0463758177", "Email": "" },
             "859643": { "RagioneSociale": "FARM SELLA GROSSRUBATSCHER DR F.", "PartitaIva": "02716510215", "IBAN": "IT15L0823858680000302022508", "SDI": "", "Tel": "0471796125", "Email": "ferdinando.grossrubatscher.bolzano@farmarete.it" },
             "866829": { "RagioneSociale": "FARM BIFARINI SNC BIFARINI/HABASH", "PartitaIva": "02608720229", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0463722704", "Email": "farmaciabifarini@aruba.it" },
-            "866830": { "RagioneSociale": "FARM CAPPELLETTI MEZZOCORONA SNC", "PartitaIva": "02642820225", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Total": "0461601384", "Email": "info@farmaciacappellettimezzocorona.com" },
+            "866830": { "RagioneSociale": "FARM CAPPELLETTI MEZZOCORONA SNC", "PartitaIva": "02642820225", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0461601384", "Email": "info@farmaciacappellettimezzocorona.com" },
             "867080": { "RagioneSociale": "FARM PARACELSUS SRL DR K.PICHLER", "PartitaIva": "03124720214", "IBAN": "IT04H0585659110001571471749", "SDI": "", "Tel": "0472764940", "Email": "" },
             "865602": { "RagioneSociale": "FARM KRON APOTHEKE SNC", "PartitaIva": "02975840212", "IBAN": "IT19N0604559040000005006402", "SDI": "", "Tel": "0474548440", "Email": "farmaciakronapotheke@gmail.com" },
             "866165": { "RagioneSociale": "FARM BRETTA DR GIORGIO & C SNC", "PartitaIva": "02568670224", "IBAN": "IT92F0802405625000005091640", "SDI": "", "Tel": "0465442174", "Email": "" },
@@ -115,9 +115,10 @@
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            const urlPdfTarget = "https://gppitaly.github.io/listino/listino.pdf";
+            // Il PDF si trova nel tuo server
+            const urlPdfTarget = "listino.pdf"; 
             
-            // Passiamo l'anagrafica nel PDF tramite hash params come previsto dal modulo nativo
+            // Parametri passati all'URL
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
                            `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
                            `&PartitaIva=${encodeURIComponent(datiClienteCorrente.PartitaIva)}` +
@@ -126,8 +127,8 @@
                            `&Tel=${encodeURIComponent(datiClienteCorrente.Tel)}` +
                            `&Email=${encodeURIComponent(datiClienteCorrente.Email)}`;
 
-            // Carichiamo il file tramite il visualizzatore generico basato su PDF.js bypassando le restrizioni originarie
-            document.getElementById("pdf-container").src = "https://mozilla.github.io/pdf.js/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
+            // Caricamento tramite il visualizzatore PDF.js locale
+            document.getElementById("pdf-container").src = "./pdfjs/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
         }
 
         async function inviaOrdine() {
@@ -137,27 +138,31 @@
             let quantitaTrovate = "Nessun dato estratto";
 
             try {
-                // Intercettiamo l'istanza corretta all'interno del visualizzatore caricato
+                // Accesso all'istanza locale di PDF.js
                 if (iframe.contentWindow && iframe.contentWindow.PDFViewerApplication) {
                     const pdfApp = iframe.contentWindow.PDFViewerApplication;
                     
                     if (pdfApp.pdfDocument) {
-                        // Otteniamo la struttura form-field nativa compilata dal farmacista
+                        // Estrazione sicura dei dati compilati
                         const fieldObjects = await pdfApp.pdfDocument.getFieldObjects();
                         const datiModulo = {};
                         
                         for (const key in fieldObjects) {
                             if (fieldObjects.hasOwnProperty(key)) {
-                                // Mappiamo la chiave del campo con il valore inserito a schermo
                                 datiModulo[key] = fieldObjects[key].value || "";
                             }
                         }
                         quantitaTrovate = JSON.stringify(datiModulo);
+                    } else {
+                        throw new Error("Il documento PDF non è ancora del tutto pronto.");
                     }
+                } else {
+                    throw new Error("Impossibile trovare PDFViewerApplication. Verifica che i file nella cartella 'pdfjs' siano caricati correttamente.");
                 }
             } catch (e) {
                 console.error("Errore di estrazione dal PDF:", e);
-                alert("Attenzione: blocco di sicurezza del browser rilevato. Assicurarsi di aver inserito i dati correttamente.");
+                alert("Attenzione: Errore durante il recupero dei dati del PDF. Dettagli: " + e.message);
+                return; 
             }
 
             const urlPowerAutomate = "https://default9bca582b952d496396acbade8d9fa3.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/a0cba5552efd445489af129c695dacfa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SmTWWuiGYYqsQKnE7YV748qfOwnoLfiVbcfhOvhaPzc";
@@ -188,7 +193,7 @@
                 }
             })
             .catch(error => {
-                alert("Errore di rete: impossibile inviare l'ordine.");
+                alert("Errore di rete: impossibile raggiungere il server.");
             });
         }
     </script>
