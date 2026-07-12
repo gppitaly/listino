@@ -9,7 +9,7 @@
             "191750": { "RagioneSociale": "FARM TOMASI D.SA NICOLETTA", "PartitaIva": "00630640225", "IBAN": "IT85E0804235000000010300322", "SDI": "", "Tel": "0463901131", "Email": "farmacia.tomasi@virgilio.it" },
             "193240": { "RagioneSociale": "FARM REVO DSA SILVESTRI", "PartitaIva": "00673580221", "IBAN": "IT53Z0324034670000011157882", "SDI": "", "Tel": "0463432131", "Email": "luciana.silvestri.trento@farmarete.it" },
             "187001": { "RagioneSociale": "FARM MADONNA SAS", "PartitaIva": "00737680215", "IBAN": "IT21C0604558590000000067300", "SDI": "", "Tel": "0473220671", "Email": "" },
-            "187880": { "RagioneSociale": "FARM S.ELISABETH DR GROSSRUBATSCH", "PartitaIva": "01145240212", "IBAN": "IT04R0823858860000301030558", "SDI": "", "Tel": "0471792106", "Email": "" },
+            "187880": { "RagioneSociale": "FARM S.ELISABETH DR GROSSRUBATSCHER", "PartitaIva": "01145240212", "IBAN": "IT04R0823858860000301030558", "SDI": "", "Tel": "0471792106", "Email": "" },
             "186585": { "RagioneSociale": "FARM DR J.AICHNER S.A.S.", "PartitaIva": "00745390211", "IBAN": "IT41N058565827006570000145", "SDI": "", "Tel": "0474678035", "Email": "" },
             "P07892": { "RagioneSociale": "FARM PAULS DRSSA GIULIANI SUSANNE", "PartitaIva": "02572840219", "IBAN": "IT83C0825558161000301005324", "SDI": "", "Tel": "0471665897", "Email": "info@farmacia-sanpaolo.it" },
             "P07899": { "RagioneSociale": "FARM SONNENBERG DI TANCHIS & C. SAS", "PartitaIva": "01696500212", "IBAN": "IT23J0811058450000300007307", "SDI": "IOTCCJS", "Tel": "0473623310", "Email": "farmacia.sonnenberg@rolmail.net" },
@@ -46,7 +46,7 @@
         };
 
         let datiClienteCorrente = null;
-        let datiModificatiPDF = {}; // Stato globale temporaneo per salvare l'input dei prodotti
+        let datiModificatiPDF = {};
 
         function iniziaCompilazione() {
             const codice = document.getElementById("codiceCliente").value.trim();
@@ -73,27 +73,21 @@
 
             document.getElementById("pdf-container").src = urlPdfBase + params;
 
-            // Avviamo un ciclo di intercettazione per i browser basati su Chromium
             configuraAscoltoPDF();
         }
 
         function configuraAscoltoPDF() {
-            // Poiché non possiamo leggere direttamente l'intero form a comando a causa della sicurezza Sandbox,
-            // intercettiamo tutti i messaggi inviati o i cambi di stato focalizzandoci sui tentativi di interazione
             window.addEventListener("message", function(event) {
-                // Se il visualizzatore PDF nativo supporta lo scambio di eventi postMessage
                 if (event.data && typeof event.data === 'object') {
                     datiModificatiPDF = Object.assign(datiModificatiPDF, event.data);
                 }
             }, false);
         }
 
-        function estraiDatiDaInterfaccia NATIVA() {
-            // Tentativo avanzato di recupero tramite destrutturazione degli elementi attivi interni se iniettabili
+        function estraiDatiDaInterfacciaNativa() {
             try {
                 const iframe = document.getElementById("pdf-container");
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
-                // Cerchiamo gli input generati a schermo dal motore di rendering del browser (es. i div di textLayer o i moduli di input sovrapposti)
                 const inputs = doc.querySelectorAll('input, textarea, [role="textbox"]');
                 let mappaDati = {};
                 inputs.forEach((el, index) => {
@@ -112,17 +106,14 @@
         async function inviaOrdine() {
             if (!datiClienteCorrente) return;
 
-            // Proviamo a estrarre i dati digitati nel PDF tramite ispezione dell'interfaccia nativa
-            let quantitaTrovate = estraiDatiDaInterfacciaNATIVA();
+            let quantitaTrovate = estraiDatiDaInterfacciaNativa();
 
-            // Fallback: se la Sandbox del browser blocca l'accesso al DOM dell'iframe, leggiamo gli eventi intercettati
             if (!quantitaTrovate || quantitaTrovate === "{}") {
                 if (Object.keys(datiModificatiPDF).length > 0) {
                     quantitaTrovate = JSON.stringify(datiModificatiPDF);
                 } else {
-                    // Se non è stato possibile intercettare i nodi nativi Adobe/Chromium, chiediamo conferma rapida per sbloccare Power Automate
                     const controllo = prompt("Inserisci la quantità per Refluzero o conferma i prodotti inseriti nel PDF:", "5");
-                    if (controllo === null) return; // annullato
+                    if (controllo === null) return; 
                     quantitaTrovate = JSON.stringify({ "Refluzero": controllo });
                 }
             }
