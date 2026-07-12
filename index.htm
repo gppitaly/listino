@@ -115,8 +115,8 @@
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            // Il PDF si trova nel tuo server
-            const urlPdfTarget = "listino.pdf"; 
+            // Percorso assoluto tarato su GitHub Pages per pescare il file listino.pdf dalla radice principale
+            const urlPdfTarget = "/listino/listino.pdf"; 
             
             // Parametri passati all'URL
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
