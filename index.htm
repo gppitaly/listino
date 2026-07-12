@@ -5,26 +5,25 @@
     <title>Area Riservata Farmacie - GPP Health</title>
     <style>
         body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
-        
-        /* HEADER LAYOUT */
+
         .header { background-color: #0d3b66; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); height: 70px; box-sizing: border-box; }
         .header-titoli h1 { margin: 0; font-size: 20px; font-weight: 600; }
         .header-titoli p { margin: 3px 0 0 0; font-size: 14px; opacity: 0.9; }
-        
-        /* IL TASTONE VERDE GROSSO A DESTRA */
+
         .btn-invia { background-color: #2ecc71; color: white; border: none; padding: 12px 28px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
         .btn-invia:hover { background-color: #27ae60; }
+        .btn-invia:disabled { background-color: #9aa7b5; cursor: not-allowed; }
 
-        /* SCHERMATA DI LOGIN */
         #schermataAccesso { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 20px; }
         .login-container { max-width: 400px; width: 100%; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #0d3b66; box-sizing: border-box; }
         input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; text-align: center; margin-bottom: 20px; outline: none; box-sizing: border-box; }
         .btn-accesso { background-color: #0d3b66; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; box-sizing: border-box; }
         .btn-accesso:hover { background-color: #145592; }
 
-        /* CONTENITORE PDF INTERATTIVO NATIVO */
         #schermataCompilazione { display:none; flex-direction: column; width: 100%; flex-grow: 1; }
         #pdf-container { width: 100%; height: calc(100vh - 70px); border: none; }
+
+        #statusBar { text-align: center; padding: 6px; font-size: 13px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -47,9 +46,10 @@
                 <p id="info-farmacia">Caricamento dicitura farmacia...</p>
             </div>
             <div>
-                <button class="btn-invia" onclick="inviaOrdine()">Conferma e Invia Ordine</button>
+                <button id="btnInvia" class="btn-invia" onclick="inviaOrdine()">Conferma e Invia Ordine</button>
             </div>
         </div>
+        <div id="statusBar"></div>
         <iframe id="pdf-container" src=""></iframe>
     </div>
 
@@ -74,11 +74,11 @@
             "P11174": { "RagioneSociale": "FARM S ANNA DSA POLLI SARAH & C SAS", "PartitaIva": "02695320214", "IBAN": "IT41Z0604558240000000040700", "SDI": "", "Tel": "3481636393", "Email": "info@farmaciasantannabrunico.it" },
             "P11230": { "RagioneSociale": "FARM DI STENICO E SAN LORENZO SNC", "PartitaIva": "02164930220", "IBAN": "IT37V0807835890000006061001", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "P03494": { "RagioneSociale": "FARM HIPPOLYT DR MARGOT", "PartitaIva": "02308280219", "IBAN": "IT95N0827358980000300220761", "SDI": "", "Tel": "0473927084", "Email": "margot.vinatzer.bolzano@farmarete.it" },
-            "P03180": { "RagioneSociale": "FARM SAN GENASIO DR BIOTTI CESARE", "PartitaIva": "02322720216", "IBAN": "IT59Y0808158800000302037653", "SDI": "3481636393", "Email": "s.serretti@gppitaly.it" },
+            "P03180": { "RagioneSociale": "FARM SAN GENASIO DR BIOTTI CESARE", "PartitaIva": "02322720216", "IBAN": "IT59Y0808158800000302037653", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "P03379": { "RagioneSociale": "FARM SAN BARTOLOMEO", "PartitaIva": "00672310224", "IBAN": "IT48H0200801820000005620365", "SDI": "", "Tel": "0461913593", "Email": "cristina.bertolini.trento@farmarete.it" },
             "850482": { "RagioneSociale": "FARM ROMANI DI ERRIGO A. E C. SNC", "PartitaIva": "02046850224", "IBAN": "IT24I0812034930000000125683", "SDI": "", "Tel": "3481636393", "Email": "farmaciaromanilavis@gmail.com" },
             "P04015": { "RagioneSociale": "FARM POSTAL DR TANJA NART", "PartitaIva": "02427440215", "IBAN": "IT51S0811558493000307416008", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "P04154": { "RagioneSociale": "FARM SARNTAL DR REGENSBERGER", "PartitaIva": "02248070217", "IBAN": "IT59S0823358870000300009181", "SDI": "3481636393", "Email": "s.serretti@gppitaly.it" },
+            "P04154": { "RagioneSociale": "FARM SARNTAL DR REGENSBERGER", "PartitaIva": "02248070217", "IBAN": "IT59S0823358870000300009181", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "851936": { "RagioneSociale": "MAGAFARMA SRL", "PartitaIva": "02345010223", "IBAN": "IT22X0801634790000036022998", "SDI": "M5UXCR1", "Tel": "0465735159", "Email": "info@gagliardifarmacia.it" },
             "856717": { "RagioneSociale": "FARM APOTECA ALTA BADIA SNC", "PartitaIva": "02932630219", "IBAN": "IT22A0306958183100000000363", "SDI": "", "Tel": "0471847152", "Email": "renzo@farmaonline.eu" },
             "856596": { "RagioneSociale": "FARM VINOTTI SNC DI MARINCHEL & C", "PartitaIva": "02491630220", "IBAN": "IT11U0826305514000000332020", "SDI": "", "Tel": "0463468116", "Email": "" },
@@ -110,15 +110,14 @@
             }
 
             datiClienteCorrente = databaseClienti[codice];
-            
+
             document.getElementById("schermataAccesso").style.display = "none";
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            // Percorso assoluto tarato su GitHub Pages per pescare il file listino.pdf dalla radice principale
-            const urlPdfTarget = "/listino/listino.pdf"; 
-            
-            // Parametri passati all'URL
+            // Percorso relativo al PDF template (vuoto, con soli campi)
+            const urlPdfTarget = "/listino/listino.pdf";
+
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
                            `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
                            `&PartitaIva=${encodeURIComponent(datiClienteCorrente.PartitaIva)}` +
@@ -127,42 +126,47 @@
                            `&Tel=${encodeURIComponent(datiClienteCorrente.Tel)}` +
                            `&Email=${encodeURIComponent(datiClienteCorrente.Email)}`;
 
-            // Caricamento tramite il visualizzatore PDF.js locale
             document.getElementById("pdf-container").src = "./pdfjs/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
         }
 
         async function inviaOrdine() {
             if (!datiClienteCorrente) return;
+            if (!confirm("Sei sicuro di voler inviare l'ordine?")) return;
+
+            const btn = document.getElementById("btnInvia");
+            const statusBar = document.getElementById("statusBar");
+            btn.disabled = true;
+            statusBar.style.color = "#7f8c8d";
+            statusBar.innerText = "Lettura dati dal modulo in corso...";
 
             const iframe = document.getElementById("pdf-container");
-            let quantitaTrovate = "Nessun dato estratto";
+            let datiModulo = {};
 
             try {
-                // Accesso all'istanza locale di PDF.js
-                if (iframe.contentWindow && iframe.contentWindow.PDFViewerApplication) {
-                    const pdfApp = iframe.contentWindow.PDFViewerApplication;
-                    
-                    if (pdfApp.pdfDocument) {
-                        // Estrazione sicura dei dati compilati
-                        const fieldObjects = await pdfApp.pdfDocument.getFieldObjects();
-                        const datiModulo = {};
-                        
-                        for (const key in fieldObjects) {
-                            if (fieldObjects.hasOwnProperty(key)) {
-                                datiModulo[key] = fieldObjects[key].value || "";
-                            }
-                        }
-                        quantitaTrovate = JSON.stringify(datiModulo);
-                    } else {
-                        throw new Error("Il documento PDF non è ancora del tutto pronto.");
-                    }
-                } else {
-                    throw new Error("Impossibile trovare PDFViewerApplication. Verifica che i file nella cartella 'pdfjs' siano caricati correttamente.");
+                const pdfApp = iframe.contentWindow.PDFViewerApplication;
+                if (!pdfApp || !pdfApp.pdfDocument) {
+                    throw new Error("Il documento PDF non è ancora pronto. Attendi il caricamento completo e riprova.");
+                }
+
+                const pdfDoc = pdfApp.pdfDocument;
+                const storage = pdfDoc.annotationStorage;
+                const fieldObjectsMap = await pdfDoc.getFieldObjects();
+
+                // Costruiamo un oggetto PULITO chiave/valore: nome campo -> valore digitato
+                // (usiamo annotationStorage.getValue per prendere il valore REALE inserito
+                // dall'utente, non il valore di default salvato nel PDF)
+                for (const nomeCampo in fieldObjectsMap) {
+                    const listaCampi = fieldObjectsMap[nomeCampo];
+                    listaCampi.forEach(function (campo) {
+                        const risultato = storage.getValue(campo.id, { value: campo.value });
+                        datiModulo[nomeCampo] = risultato.value;
+                    });
                 }
             } catch (e) {
-                console.error("Errore di estrazione dal PDF:", e);
-                alert("Attenzione: Errore durante il recupero dei dati del PDF. Dettagli: " + e.message);
-                return; 
+                statusBar.style.color = "#c0392b";
+                statusBar.innerText = "Errore lettura PDF: " + e.message;
+                btn.disabled = false;
+                return;
             }
 
             const urlPowerAutomate = "https://default9bca582b952d496396acbade8d9fa3.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/a0cba5552efd445489af129c695dacfa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SmTWWuiGYYqsQKnE7YV748qfOwnoLfiVbcfhOvhaPzc";
@@ -175,25 +179,31 @@
                 "SDI": datiClienteCorrente.SDI,
                 "Tel": datiClienteCorrente.Tel,
                 "Email": datiClienteCorrente.Email,
-                "QuantitaOrdinate": quantitaTrovate
+                // Oggetto piatto e pulito, pronto per "Analizza JSON" nel flow
+                "QuantitaOrdinate": JSON.stringify(datiModulo)
             };
+
+            statusBar.innerText = "Invio ordine in corso...";
 
             fetch(urlPowerAutomate, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             })
-            .then(response => {
+            .then(function (response) {
                 if (response.ok) {
+                    statusBar.style.color = "#1e8449";
+                    statusBar.innerText = "Ordine inviato ed elaborato correttamente!";
                     alert("Ordine inviato ed elaborato correttamente!");
                 } else {
-                    alert("Errore durante l'elaborazione dell'ordine da parte del server.");
+                    throw new Error("Il server ha risposto con stato " + response.status);
                 }
             })
-            .catch(error => {
-                alert("Errore di rete: impossibile raggiungere il server.");
+            .catch(function (error) {
+                statusBar.style.color = "#c0392b";
+                statusBar.innerText = "Errore durante l'invio: " + error.message;
+                alert("Errore durante l'invio dell'ordine: " + error.message);
+                btn.disabled = false;
             });
         }
     </script>
