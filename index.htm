@@ -6,7 +6,7 @@
     <style>
         body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
         
-        /* HEADER RITORNATO AL TUO LAYOUT PREFERITO */
+        /* HEADER LAYOUT */
         .header { background-color: #0d3b66; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); height: 70px; box-sizing: border-box; }
         .header-titoli h1 { margin: 0; font-size: 20px; font-weight: 600; }
         .header-titoli p { margin: 3px 0 0 0; font-size: 14px; opacity: 0.9; }
@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <!-- SCHERMATA DI COMPILAZIONE (LAYOUT RIPRISTINATO E CORRETTO) -->
+    <!-- SCHERMATA DI COMPILAZIONE -->
     <div id="schermataCompilazione">
         <div class="header">
             <div class="header-titoli">
@@ -47,11 +47,9 @@
                 <p id="info-farmacia">Caricamento dicitura farmacia...</p>
             </div>
             <div>
-                <!-- Ripristinato il tastone verde come in Foto 2 -->
                 <button class="btn-invia" onclick="inviaOrdine()">Conferma e Invia Ordine</button>
             </div>
         </div>
-        <!-- Utilizziamo un iframe nativo che supporta l'interattività e lo scorrimento di tutte le pagine -->
         <iframe id="pdf-container" src=""></iframe>
     </div>
 
@@ -117,10 +115,8 @@
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            // Passiamo le informazioni direttamente tramite l'URL del PDF (FdfData) in modo che Chrome/Edge precompilino nativamente i campi interattivi mantenendo il PDF editabile al 100%
             const urlPdfBase = "https://gppitaly.github.io/listino/listino.pdf";
             
-            // Creiamo i parametri di compilazione
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
                            `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
                            `&PartitaIva=${encodeURIComponent(datiClienteCorrente.PartitaIva)}` +
@@ -129,18 +125,70 @@
                            `&Tel=${encodeURIComponent(datiClienteCorrente.Tel)}` +
                            `&Email=${encodeURIComponent(datiClienteCorrente.Email)}`;
 
-            // Carichiamo il PDF interattivo nativo nell'iframe con i dati agganciati
             document.getElementById("pdf-container").src = urlPdfBase + params;
         }
 
-        function inviaOrdine() {
-            // Logica del tastone verde: Raccoglie i dati e invia (puoi personalizzare l'invio via email o form)
+        async function inviaOrdine() {
             if (!datiClienteCorrente) return;
-            
-            alert("Ordine registrato per: " + datiClienteCorrente.RagioneSociale + ".\nProcedo all'invio dei dati inseriti nel listino.");
-            
-            // Qui puoi integrare un reindirizzamento o un invio email automatico
-            // window.location.href = `mailto:ordini@gppitaly.it?subject=Nuovo Ordine ${datiClienteCorrente.RagioneSociale}&body=In allegato il modulo compilato.`;
+
+            const iframe = document.getElementById("pdf-container");
+            let quantitaTrovate = "Nessun dato estratto o compilazione nativa diretta";
+
+            try {
+                // Intercettiamo l'oggetto dell'applicazione di visualizzazione interna al browser (Chrome/Edge PDF Viewer)
+                if (iframe.contentWindow && iframe.contentWindow.PDFViewerApplication) {
+                    const pdfApp = iframe.contentWindow.PDFViewerApplication;
+                    if (pdfApp.pdfDocument) {
+                        // Estraiamo tutti i dati inseriti nel form interattivo del PDF
+                        const fieldObjects = await pdfApp.pdfDocument.getFieldObjects();
+                        const datiModulo = {};
+                        
+                        for (const key in fieldObjects) {
+                            if (fieldObjects.hasOwnProperty(key)) {
+                                // Raccoglie il valore scritto a mano dall'utente in ogni singola cella del PDF
+                                datiModulo[key] = fieldObjects[key].value || "";
+                            }
+                        }
+                        quantitaTrovate = JSON.stringify(datiModulo);
+                    }
+                }
+            } catch (e) {
+                console.log("Lettura diretta del form PDF limitata dalle policy del browser, invio dati tracciati.");
+            }
+
+            // URL del trigger del tuo flusso su Power Automate
+            const urlPowerAutomate = "https://default9bca582b952d496396acbade8d9fa3.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/a0cba5552efd445489af129c695dacfa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SmTWWuiGYYqsQKnE7YV748qfOwnoLfiVbcfhOvhaPzc";
+
+            // Costruiamo il JSON finale raccogliendo l'anagrafica di base combinata con il contenuto estratto dal PDF
+            const payload = {
+                "CodiceCliente": document.getElementById("codiceCliente").value.trim(),
+                "RagioneSociale": datiClienteCorrente.RagioneSociale,
+                "PartitaIva": datiClienteCorrente.PartitaIva,
+                "IBAN": datiClienteCorrente.IBAN,
+                "SDI": datiClienteCorrente.SDI,
+                "Tel": datiClienteCorrente.Tel,
+                "Email": datiClienteCorrente.Email,
+                "QuantitaOrdinate": quantitaTrovate
+            };
+
+            // Spariamo il POST a Power Automate al clic sul tastone
+            fetch(urlPowerAutomate, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Ordine inviato ed elaborato correttamente!");
+                } else {
+                    alert("Errore durante l'elaborazione dell'ordine da parte del server.");
+                }
+            })
+            .catch(error => {
+                alert("Errore di rete: impossibile inviare l'ordine.");
+            });
         }
     </script>
 </body>
