@@ -2,140 +2,55 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Area Raccolta Ordini - GPP Italy</title>
+    <title>Area Riservata Farmacie - GPP Health</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+        
+        /* HEADER LAYOUT */
+        .header { background-color: #0d3b66; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); height: 70px; box-sizing: border-box; }
+        .header-titoli h1 { margin: 0; font-size: 20px; font-weight: 600; }
+        .header-titoli p { margin: 3px 0 0 0; font-size: 14px; opacity: 0.9; }
+        
+        /* IL TASTONE VERDE GROSSO A DESTRA */
+        .btn-invia { background-color: #2ecc71; color: white; border: none; padding: 12px 28px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .btn-invia:hover { background-color: #27ae60; }
 
-        body {
-            background-color: #f4f6f9;
-            color: #333;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        /* SCHERMATA DI LOGIN */
+        #schermataAccesso { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 20px; }
+        .login-container { max-width: 400px; width: 100%; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #0d3b66; box-sizing: border-box; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; text-align: center; margin-bottom: 20px; outline: none; box-sizing: border-box; }
+        .btn-accesso { background-color: #0d3b66; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; box-sizing: border-box; }
+        .btn-accesso:hover { background-color: #145592; }
 
-        #schermataAccesso {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
-        .logo span {
-            color: #27ae60;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            border-color: #27ae60;
-            outline: none;
-        }
-
-        button {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #219653;
-        }
-
-        #schermataCompilazione {
-            display: none;
-            flex-direction: column;
-            width: 100%;
-            height: 100vh;
-        }
-
-        .header-bar {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .header-bar h2 {
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        .btn-invia {
-            background-color: #27ae60;
-            width: auto;
-            padding: 10px 30px;
-        }
-
-        .iframe-container {
-            flex: 1;
-            width: 100%;
-            border: none;
-            background-color: #fff;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        /* CONTENITORE PDF INTERATTIVO NATIVO */
+        #schermataCompilazione { display:none; flex-direction: column; width: 100%; flex-grow: 1; }
+        #pdf-container { width: 100%; height: calc(100vh - 70px); border: none; }
     </style>
 </head>
 <body>
 
-    <!-- SCHERMATA LOGIN CLIENTE -->
+    <!-- SCHERMATA DI ACCESSO (LOGIN) -->
     <div id="schermataAccesso">
-        <div class="logo">GPP<span>Italy</span></div>
-        <p>Inserisci il codice identificativo della farmacia per accedere al listino personalizzato.</p>
-        <input type="text" id="codiceCliente" placeholder="Es. P15672 o 186550">
-        <button onclick="iniziaCompilazione()">Accedi al Listino</button>
+        <div class="login-container">
+            <h1>Area Ordini Farmacie</h1>
+            <p style="color: #7f8c8d; margin: 0 0 25px 0; font-size: 14px;">Inserisci il tuo Codice Cliente per accedere al listino precompilato.</p>
+            <input type="text" id="codiceCliente" placeholder="Es. 187001">
+            <button onclick="iniziaCompilazione()" class="btn-accesso">Accedi al Listino</button>
+        </div>
     </div>
 
-    <!-- SCHERMATA COMPILAZIONE ORDINE -->
+    <!-- SCHERMATA DI COMPILAZIONE -->
     <div id="schermataCompilazione">
-        <div class="header-bar">
-            <h2 id="info-farmacia">Caricamento dati farmacia...</h2>
-            <button class="btn-invia" onclick="inviaOrdine()">Invia Ordine</button>
+        <div class="header">
+            <div class="header-titoli">
+                <h1>Compilazione Listino Ordini</h1>
+                <p id="info-farmacia">Caricamento dicitura farmacia...</p>
+            </div>
+            <div>
+                <button class="btn-invia" onclick="inviaOrdine()">Conferma e Invia Ordine</button>
+            </div>
         </div>
-        <div class="iframe-container">
-            <iframe id="pdf-container" src=""></div>
-        </div>
+        <iframe id="pdf-container" src=""></iframe>
     </div>
 
     <script>
@@ -174,7 +89,7 @@
             "859799": { "RagioneSociale": "FARM DOTT GIANLUCA ASCANIO &C SNC", "PartitaIva": "02465700223", "IBAN": "IT41W0816335750000110300389", "SDI": "", "Tel": "0463758177", "Email": "" },
             "859643": { "RagioneSociale": "FARM SELLA GROSSRUBATSCHER DR F.", "PartitaIva": "02716510215", "IBAN": "IT15L0823858680000302022508", "SDI": "", "Tel": "0471796125", "Email": "ferdinando.grossrubatscher.bolzano@farmarete.it" },
             "866829": { "RagioneSociale": "FARM BIFARINI SNC BIFARINI/HABASH", "PartitaIva": "02608720229", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0463722704", "Email": "farmaciabifarini@aruba.it" },
-            "866830": { "RagioneSociale": "FARM CAPPELLETTI MEZZOCORONA SNC", "PartitaIva": "02642820225", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0461601384", "Email": "info@farmaciacappellettimezzocorona.com" },
+            "866830": { "RagioneSociale": "FARM CAPPELLETTI MEZZOCORONA SNC", "PartitaIva": "02642820225", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Total": "0461601384", "Email": "info@farmaciacappellettimezzocorona.com" },
             "867080": { "RagioneSociale": "FARM PARACELSUS SRL DR K.PICHLER", "PartitaIva": "03124720214", "IBAN": "IT04H0585659110001571471749", "SDI": "", "Tel": "0472764940", "Email": "" },
             "865602": { "RagioneSociale": "FARM KRON APOTHEKE SNC", "PartitaIva": "02975840212", "IBAN": "IT19N0604559040000005006402", "SDI": "", "Tel": "0474548440", "Email": "farmaciakronapotheke@gmail.com" },
             "866165": { "RagioneSociale": "FARM BRETTA DR GIORGIO & C SNC", "PartitaIva": "02568670224", "IBAN": "IT92F0802405625000005091640", "SDI": "", "Tel": "0465442174", "Email": "" },
@@ -186,7 +101,6 @@
         };
 
         let datiClienteCorrente = null;
-        let datiModificatiPDF = {};
 
         function iniziaCompilazione() {
             const codice = document.getElementById("codiceCliente").value.trim();
@@ -201,8 +115,9 @@
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            const urlPdfBase = "https://gppitaly.github.io/listino/listino.pdf";
+            const urlPdfTarget = "https://gppitaly.github.io/listino/listino.pdf";
             
+            // Passiamo l'anagrafica nel PDF tramite hash params come previsto dal modulo nativo
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
                            `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
                            `&PartitaIva=${encodeURIComponent(datiClienteCorrente.PartitaIva)}` +
@@ -211,51 +126,38 @@
                            `&Tel=${encodeURIComponent(datiClienteCorrente.Tel)}` +
                            `&Email=${encodeURIComponent(datiClienteCorrente.Email)}`;
 
-            document.getElementById("pdf-container").src = urlPdfBase + params;
-
-            configuraAscoltoPDF();
-        }
-
-        function configuraAscoltoPDF() {
-            window.addEventListener("message", function(event) {
-                if (event.data && typeof event.data === 'object') {
-                    datiModificatiPDF = Object.assign(datiModificatiPDF, event.data);
-                }
-            }, false);
-        }
-
-        function estraiDatiDaInterfacciaNativa() {
-            try {
-                const iframe = document.getElementById("pdf-container");
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                const inputs = doc.querySelectorAll('input, textarea, [role="textbox"]');
-                let mappaDati = {};
-                inputs.forEach((el, index) => {
-                    let id = el.id || el.name || "campo_" + index;
-                    if(el.value) {
-                        mappaDati[id] = el.value;
-                    }
-                });
-                if(Object.keys(mappaDati).length > 0) return JSON.stringify(mappaDati);
-            } catch(e) {
-                console.log("Lettura DOM protetta.");
-            }
-            return null;
+            // Carichiamo il file tramite il visualizzatore generico basato su PDF.js bypassando le restrizioni originarie
+            document.getElementById("pdf-container").src = "https://mozilla.github.io/pdf.js/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
         }
 
         async function inviaOrdine() {
             if (!datiClienteCorrente) return;
 
-            let quantitaTrovate = estraiDatiDaInterfacciaNativa();
+            const iframe = document.getElementById("pdf-container");
+            let quantitaTrovate = "Nessun dato estratto";
 
-            if (!quantitaTrovate || quantitaTrovate === "{}") {
-                if (Object.keys(datiModificatiPDF).length > 0) {
-                    quantitaTrovate = JSON.stringify(datiModificatiPDF);
-                } else {
-                    const controllo = prompt("Inserisci la quantità per Refluzero o conferma i prodotti inseriti nel PDF:", "5");
-                    if (controllo === null) return; 
-                    quantitaTrovate = JSON.stringify({ "Refluzero": controllo });
+            try {
+                // Intercettiamo l'istanza corretta all'interno del visualizzatore caricato
+                if (iframe.contentWindow && iframe.contentWindow.PDFViewerApplication) {
+                    const pdfApp = iframe.contentWindow.PDFViewerApplication;
+                    
+                    if (pdfApp.pdfDocument) {
+                        // Otteniamo la struttura form-field nativa compilata dal farmacista
+                        const fieldObjects = await pdfApp.pdfDocument.getFieldObjects();
+                        const datiModulo = {};
+                        
+                        for (const key in fieldObjects) {
+                            if (fieldObjects.hasOwnProperty(key)) {
+                                // Mappiamo la chiave del campo con il valore inserito a schermo
+                                datiModulo[key] = fieldObjects[key].value || "";
+                            }
+                        }
+                        quantitaTrovate = JSON.stringify(datiModulo);
+                    }
                 }
+            } catch (e) {
+                console.error("Errore di estrazione dal PDF:", e);
+                alert("Attenzione: blocco di sicurezza del browser rilevato. Assicurarsi di aver inserito i dati correttamente.");
             }
 
             const urlPowerAutomate = "https://default9bca582b952d496396acbade8d9fa3.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/a0cba5552efd445489af129c695dacfa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SmTWWuiGYYqsQKnE7YV748qfOwnoLfiVbcfhOvhaPzc";
@@ -280,9 +182,9 @@
             })
             .then(response => {
                 if (response.ok) {
-                    alert("Ordine inviato ed elaborato correttamente! Controlla Excel.");
+                    alert("Ordine inviato ed elaborato correttamente!");
                 } else {
-                    alert("Errore durante l'elaborazione dell'ordine da parte di Power Automate.");
+                    alert("Errore durante l'elaborazione dell'ordine da parte del server.");
                 }
             })
             .catch(error => {
