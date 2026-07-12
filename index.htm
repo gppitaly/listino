@@ -1,4 +1,144 @@
-<script>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Raccolta Ordini - GPP Italy</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #schermataAccesso {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .logo span {
+            color: #27ae60;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #27ae60;
+            outline: none;
+        }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #219653;
+        }
+
+        #schermataCompilazione {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .header-bar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header-bar h2 {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .btn-invia {
+            background-color: #27ae60;
+            width: auto;
+            padding: 10px 30px;
+        }
+
+        .iframe-container {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background-color: #fff;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCHERMATA LOGIN CLIENTE -->
+    <div id="schermataAccesso">
+        <div class="logo">GPP<span>Italy</span></div>
+        <p>Inserisci il codice identificativo della farmacia per accedere al listino personalizzato.</p>
+        <input type="text" id="codiceCliente" placeholder="Es. P15672 o 186550">
+        <button onclick="iniziaCompilazione()">Accedi al Listino</button>
+    </div>
+
+    <!-- SCHERMATA COMPILAZIONE ORDINE -->
+    <div id="schermataCompilazione">
+        <div class="header-bar">
+            <h2 id="info-farmacia">Caricamento dati farmacia...</h2>
+            <button class="btn-invia" onclick="inviaOrdine()">Invia Ordine</button>
+        </div>
+        <div class="iframe-container">
+            <iframe id="pdf-container" src=""></div>
+        </div>
+    </div>
+
+    <script>
         const databaseClienti = {
             "P15053": { "RagioneSociale": "FARM SAN MICHELE DR D. TONON", "PartitaIva": "02331550224", "IBAN": "IT49F0813935410000002117022", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
             "P15672": { "RagioneSociale": "FARM ALL'ANGELO SNC DI TONFOLINI M.", "PartitaIva": "01867580225", "IBAN": "IT30Y0200834730000003823056", "SDI": "3RB98ZT", "Tel": "3481636393", "Email": "farmaciaallangelo@gmail.com" },
@@ -98,7 +238,7 @@
                 });
                 if(Object.keys(mappaDati).length > 0) return JSON.stringify(mappaDati);
             } catch(e) {
-                console.log("Lettura DOM bloccata da Cross-Origin. Uso del fallback.");
+                console.log("Lettura DOM protetta.");
             }
             return null;
         }
@@ -150,3 +290,5 @@
             });
         }
     </script>
+</body>
+</html>
