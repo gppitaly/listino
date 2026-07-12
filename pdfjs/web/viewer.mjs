@@ -15365,31 +15365,63 @@ export { __webpack_exports__PDFViewerApplication as PDFViewerApplication, __webp
 //# sourceMappingURL=viewer.mjs.map
 
 // Script di personalizzazione per GPP Health - Precompilazione Campi Modulo
-document.addEventListener("pagesinit", function() {
-  // Aspetta che il documento PDF sia completamente renderizzato dall'applicazione
-  if (window.PDFViewerApplication && window.PDFViewerApplication.pdfDocument) {
-    window.PDFViewerApplication.pdfDocument.getFieldObjects().then(function(fields) {
-      // Recupera i parametri dall'URL principale (dall'iframe padre)
-      const u = new URL(window.location.href);
-      const hashParams = new URLSearchParams(u.hash.substring(1));
-      
-      // Mappa i parametri URL sui campi del PDF
-      const mapping = {
-        'CodiceCliente': hashParams.get('CodiceCliente'),
-        'RagioneSociale': hashParams.get('RagioneSociale'),
-        'PartitaIva': hashParams.get('PartitaIva'),
-        'IBAN': hashParams.get('IBAN'),
-        'SDI': hashParams.get('SDI'),
-        'Tel': hashParams.get('Tel'),
-        'Email': hashParams.get('Email')
-      };
+(function () {
+    function leggiParametriDaUrl() {
+        const hash = window.location.hash.startsWith('#')
+            ? window.location.hash.substring(1)
+            : window.location.hash;
+        const params = new URLSearchParams(hash);
+        return {
+            CodiceCliente: params.get('CodiceCliente') || '',
+            RagioneSociale: params.get('RagioneSociale') || '',
+            PartitaIva: params.get('PartitaIva') || '',
+            IBAN: params.get('IBAN') || '',
+            SDI: params.get('SDI') || '',
+            Tel: params.get('Tel') || '',
+            Email: params.get('Email') || ''
+        };
+    }
 
-      // Assegna i valori se i campi esistono nel PDF
-      for (const key in mapping) {
-        if (fields[key] && mapping[key]) {
-          fields[key].value = mapping[key];
+    function precompilaCampi(fieldObjectsMap, storage, dati) {
+        for (const nomeCampo in dati) {
+            const valore = dati[nomeCampo];
+            if (!valore) continue;
+            const listaCampi = fieldObjectsMap[nomeCampo];
+            if (!listaCampi) continue;
+
+            listaCampi.forEach(function (campo) {
+                // 1) Aggiorna lo storage interno di PDF.js (fonte di verità per la lettura successiva)
+                storage.setValue(campo.id, { value: valore });
+
+                // 2) Aggiorna anche il DOM visibile, così il farmacista lo vede subito
+                const el = document.querySelector('[data-element-id="' + campo.id + '"]')
+                        || document.querySelector('[name="' + CSS.escape(nomeCampo) + '"]');
+                if (el) {
+                    el.value = valore;
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
         }
-      }
-    }).catch(err => console.error("Errore precompilazione campi:", err));
-  }
-});
+    }
+
+    function agganciaPrecompilazione() {
+        if (!window.PDFViewerApplication || !window.PDFViewerApplication.eventBus) {
+            setTimeout(agganciaPrecompilazione, 200);
+            return;
+        }
+
+        window.PDFViewerApplication.eventBus.on('annotationlayerrendered', function () {
+            const pdfDoc = window.PDFViewerApplication.pdfDocument;
+            if (!pdfDoc) return;
+
+            pdfDoc.getFieldObjects().then(function (fieldObjectsMap) {
+                const dati = leggiParametriDaUrl();
+                precompilaCampi(fieldObjectsMap, pdfDoc.annotationStorage, dati);
+            }).catch(function (err) {
+                console.error("Errore precompilazione campi:", err);
+            });
+        });
+    }
+
+    agganciaPrecompilazione();
+})();
