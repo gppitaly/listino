@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Area Riservata Farmacie - GPP Health</title>
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+
+        .header { background-color: #0d3b66; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); height: 70px; box-sizing: border-box; }
+        .header-titoli h1 { margin: 0; font-size: 20px; font-weight: 600; }
+        .header-titoli p { margin: 3px 0 0 0; font-size: 14px; opacity: 0.9; }
+
+        .btn-invia { background-color: #2ecc71; color: white; border: none; padding: 12px 28px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .btn-invia:hover { background-color: #27ae60; }
+        .btn-invia:disabled { background-color: #9aa7b5; cursor: not-allowed; }
+
+        #schermataAccesso { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 20px; }
+        .login-container { max-width: 400px; width: 100%; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #0d3b66; box-sizing: border-box; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; text-align: center; margin-bottom: 20px; outline: none; box-sizing: border-box; }
+        .btn-accesso { background-color: #0d3b66; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; box-sizing: border-box; }
+        .btn-accesso:hover { background-color: #145592; }
+        .btn-accesso:disabled { background-color: #9aa7b5; cursor: not-allowed; }
+
+        #schermataCompilazione { display:none; flex-direction: column; width: 100%; flex-grow: 1; }
+        #pdf-container { width: 100%; height: calc(100vh - 70px); border: none; }
+
+        #statusBar { text-align: center; padding: 6px; font-size: 13px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- SCHERMATA DI ACCESSO (LOGIN) -->
+    <div id="schermataAccesso">
+        <div class="login-container">
+            <h1>Area Ordini Farmacie</h1>
+            <p style="color: #7f8c8d; margin: 0 0 25px 0; font-size: 14px;">Inserisci il tuo Codice Cliente per accedere al listino precompilato.</p>
+            <input type="text" id="codiceCliente" autocomplete="off">
+            <button id="btnAccesso" onclick="iniziaCompilazione()" class="btn-accesso" disabled>Caricamento anagrafiche...</button>
+        </div>
+    </div>
+
+    <!-- SCHERMATA DI COMPILAZIONE -->
+    <div id="schermataCompilazione">
+        <div class="header">
+            <div class="header-titoli">
+                <h1>Compilazione Listino Ordini</h1>
+                <p id="info-farmacia">Caricamento dicitura farmacia...</p>
+            </div>
+            <div>
+                <button id="btnInvia" class="btn-invia" onclick="inviaOrdine()">Conferma e Invia Ordine</button>
+            </div>
+        </div>
+        <div id="statusBar"></div>
+        <iframe id="pdf-container" src=""></iframe>
+    </div>
+
+    <script>
+        let databaseClienti = {};
+        let datiClienteCorrente = null;
+
+        // Carica le anagrafiche condivise (un livello sopra questa cartella)
+        fetch("../anagrafiche.json")
+            .then(function (res) {
+                if (!res.ok) throw new Error("Impossibile caricare le anagrafiche.");
+                return res.json();
+            })
+            .then(function (dati) {
+                databaseClienti = dati;
+                const btn = document.getElementById("btnAccesso");
+                btn.disabled = false;
+                btn.innerText = "Accedi al Listino";
+            })
+            .catch(function (err) {
+                alert("Errore nel caricamento delle anagrafiche clienti: " + err.message);
+            });
+
+        function iniziaCompilazione() {
+            const codice = document.getElementById("codiceCliente").value.trim();
+            if (!databaseClienti[codice]) {
+                alert("Codice cliente non trovato.");
+                return;
+            }
+
+            datiClienteCorrente = databaseClienti[codice];
+
+            document.getElementById("schermataAccesso").style.display = "none";
+            document.getElementById("schermataCompilazione").style.display = "flex";
+            document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
+
+            // PDF specifico di questa cartella (Sacha)
+            const urlPdfTarget = "./listino.pdf";
+
+            const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
+                           `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
+                           `&PartitaIva=${encodeURIComponent(datiClienteCorrente.PartitaIva)}` +
+                           `&IBAN=${encodeURIComponent(datiClienteCorrente.IBAN)}` +
+                           `&SDI=${encodeURIComponent(datiClienteCorrente.SDI)}` +
+                           `&Tel=${encodeURIComponent(datiClienteCorrente.Tel)}` +
+                           `&Email=${encodeURIComponent(datiClienteCorrente.Email)}`;
+
+            // Viewer PDF.js condiviso (un livello sopra questa cartella)
+            document.getElementById("pdf-container").src = "../pdfjs/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
+        }
+
+        async function inviaOrdine() {
+            if (!datiClienteCorrente) return;
+            if (!confirm("Sei sicuro di voler inviare l'ordine?")) return;
+
+            const btn = document.getElementById("btnInvia");
+            const statusBar = document.getElementById("statusBar");
+            btn.disabled = true;
+            statusBar.style.color = "#7f8c8d";
+            statusBar.innerText = "Lettura dati dal modulo in corso...";
+
+            const iframe = document.getElementById("pdf-container");
+            let datiModulo = {};
+
+            try {
+                const pdfApp = iframe.contentWindow.PDFViewerApplication;
+                if (!pdfApp || !pdfApp.pdfDocument) {
+                    throw new Error("Il documento PDF non è ancora pronto. Attendi il caricamento completo e riprova.");
+                }
+
+                const pdfDoc = pdfApp.pdfDocument;
+                const storage = pdfDoc.annotationStorage;
+                const fieldObjectsMap = await pdfDoc.getFieldObjects();
+
+                for (const nomeCampo in fieldObjectsMap) {
+                    const listaCampi = fieldObjectsMap[nomeCampo];
+                    listaCampi.forEach(function (campo) {
+                        const risultato = storage.getValue(campo.id, { value: campo.value });
+                        datiModulo[nomeCampo] = risultato.value;
+                    });
+                }
+            } catch (e) {
+                statusBar.style.color = "#c0392b";
+                statusBar.innerText = "Errore lettura PDF: " + e.message;
+                btn.disabled = false;
+                return;
+            }
+
+            const urlPowerAutomate = "https://default9bca582b952d496396acbade8d9fa3.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/a0cba5552efd445489af129c695dacfa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SmTWWuiGYYqsQKnE7YV748qfOwnoLfiVbcfhOvhaPzc";
+
+            const payload = {
+                "CodiceCliente": document.getElementById("codiceCliente").value.trim(),
+                "RagioneSociale": datiClienteCorrente.RagioneSociale,
+                "PartitaIva": datiClienteCorrente.PartitaIva,
+                "IBAN": datiClienteCorrente.IBAN,
+                "SDI": datiClienteCorrente.SDI,
+                "Tel": datiClienteCorrente.Tel,
+                "Email": datiClienteCorrente.Email,
+                "QuantitaOrdinate": JSON.stringify(datiModulo)
+            };
+
+            statusBar.innerText = "Invio ordine in corso...";
+
+            fetch(urlPowerAutomate, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(function (response) {
+                if (response.ok) {
+                    statusBar.style.color = "#1e8449";
+                    statusBar.innerText = "Ordine inviato ed elaborato correttamente!";
+                    alert("Ordine inviato ed elaborato correttamente!");
+                } else {
+                    throw new Error("Il server ha risposto con stato " + response.status);
+                }
+            })
+            .catch(function (error) {
+                statusBar.style.color = "#c0392b";
+                statusBar.innerText = "Errore durante l'invio: " + error.message;
+                alert("Errore durante l'invio dell'ordine: " + error.message);
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
