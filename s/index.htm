@@ -88,7 +88,7 @@
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
             // PDF specifico di questa cartella (Sacha)
-            const urlPdfTarget = "./listino.pdf";
+            const urlPdfTarget = "/listino/s/listino.pdf";
 
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
                            `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
