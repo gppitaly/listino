@@ -19,6 +19,7 @@
         input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; text-align: center; margin-bottom: 20px; outline: none; box-sizing: border-box; }
         .btn-accesso { background-color: #0d3b66; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; box-sizing: border-box; }
         .btn-accesso:hover { background-color: #145592; }
+        .btn-accesso:disabled { background-color: #9aa7b5; cursor: not-allowed; }
 
         #schermataCompilazione { display:none; flex-direction: column; width: 100%; flex-grow: 1; }
         #pdf-container { width: 100%; height: calc(100vh - 70px); border: none; }
@@ -33,8 +34,8 @@
         <div class="login-container">
             <h1>Area Ordini Farmacie</h1>
             <p style="color: #7f8c8d; margin: 0 0 25px 0; font-size: 14px;">Inserisci il tuo Codice Cliente per accedere al listino precompilato.</p>
-            <input type="text" id="codiceCliente" placeholder="Es. 187001">
-            <button onclick="iniziaCompilazione()" class="btn-accesso">Accedi al Listino</button>
+            <input type="text" id="codiceCliente" autocomplete="off">
+            <button id="btnAccesso" onclick="iniziaCompilazione()" class="btn-accesso" disabled>Caricamento anagrafiche...</button>
         </div>
     </div>
 
@@ -54,53 +55,24 @@
     </div>
 
     <script>
-        const databaseClienti = {
-            "P15053": { "RagioneSociale": "FARM SAN MICHELE DR D. TONON", "PartitaIva": "02331550224", "IBAN": "IT49F0813935410000002117022", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "P15672": { "RagioneSociale": "FARM ALL'ANGELO SNC DI TONFOLINI M.", "PartitaIva": "01867580225", "IBAN": "IT30Y0200834730000003823056", "SDI": "3RB98ZT", "Tel": "3481636393", "Email": "farmaciaallangelo@gmail.com" },
-            "188315": { "RagioneSociale": "FARM ZARDINI", "PartitaIva": "01329740219", "IBAN": "", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "186550": { "RagioneSociale": "FARM DR. AICHNER JORG", "PartitaIva": "01385210214", "IBAN": "IT86E0585658310005570039110", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "187860": { "RagioneSociale": "FARM PUTIA DR.LEZUO", "PartitaIva": "01433320213", "IBAN": "IT13M0801058830000304007042", "SDI": "", "Tel": "0474523020", "Email": "marco.lezuo.bolzano@farmarete.it" },
-            "192195": { "RagioneSociale": "FARM GALLINA", "PartitaIva": "01376430227", "IBAN": "", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "191750": { "RagioneSociale": "FARM TOMASI D.SA NICOLETTA", "PartitaIva": "00630640225", "IBAN": "IT85E0804235000000010300322", "SDI": "", "Tel": "0463901131", "Email": "farmacia.tomasi@virgilio.it" },
-            "193240": { "RagioneSociale": "FARM REVO DSA SILVESTRI", "PartitaIva": "00673580221", "IBAN": "IT53Z0324034670000011157882", "SDI": "", "Tel": "0463432131", "Email": "luciana.silvestri.trento@farmarete.it" },
-            "187001": { "RagioneSociale": "FARM MADONNA SAS", "PartitaIva": "00737680215", "IBAN": "IT21C0604558590000000067300", "SDI": "", "Tel": "0473220671", "Email": "" },
-            "187880": { "RagioneSociale": "FARM S.ELISABETH DR GROSSRUBATSCHER", "PartitaIva": "01145240212", "IBAN": "IT04R0823858860000301030558", "SDI": "", "Tel": "0471792106", "Email": "" },
-            "186585": { "RagioneSociale": "FARM DR J.AICHNER S.A.S.", "PartitaIva": "00745390211", "IBAN": "IT41N058565827006570000145", "SDI": "", "Tel": "0474678035", "Email": "" },
-            "P07892": { "RagioneSociale": "FARM PAULS DRSSA GIULIANI SUSANNE", "PartitaIva": "02572840219", "IBAN": "IT83C0825558161000301005324", "SDI": "", "Tel": "0471665897", "Email": "info@farmacia-sanpaolo.it" },
-            "P07899": { "RagioneSociale": "FARM SONNENBERG DI TANCHIS & C. SAS", "PartitaIva": "01696500212", "IBAN": "IT23J0811058450000300007307", "SDI": "IOTCCJS", "Tel": "0473623310", "Email": "farmacia.sonnenberg@rolmail.net" },
-            "P09538": { "RagioneSociale": "FARM VILLACI DOTT PIERANGELO", "PartitaIva": "02787520168", "IBAN": "IT78B0311002400001570013793", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "P01296": { "RagioneSociale": "FARM SAN LORENZO APOTHEKE", "PartitaIva": "01709610214", "IBAN": "IT11H0585658820032571067581", "SDI": "", "Tel": "0474476068", "Email": "info@sebatum.com" },
-            "P02048": { "RagioneSociale": "FARM BOURLOT DSSA CARLA", "PartitaIva": "01638350221", "IBAN": "IT65K0816335200000030301884", "SDI": "", "Tel": "0463754026", "Email": "carla.bourlot.trento@farmarete.it" },
-            "P11174": { "RagioneSociale": "FARM S ANNA DSA POLLI SARAH & C SAS", "PartitaIva": "02695320214", "IBAN": "IT41Z0604558240000000040700", "SDI": "", "Tel": "3481636393", "Email": "info@farmaciasantannabrunico.it" },
-            "P11230": { "RagioneSociale": "FARM DI STENICO E SAN LORENZO SNC", "PartitaIva": "02164930220", "IBAN": "IT37V0807835890000006061001", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "P03494": { "RagioneSociale": "FARM HIPPOLYT DR MARGOT", "PartitaIva": "02308280219", "IBAN": "IT95N0827358980000300220761", "SDI": "", "Tel": "0473927084", "Email": "margot.vinatzer.bolzano@farmarete.it" },
-            "P03180": { "RagioneSociale": "FARM SAN GENASIO DR BIOTTI CESARE", "PartitaIva": "02322720216", "IBAN": "IT59Y0808158800000302037653", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "P03379": { "RagioneSociale": "FARM SAN BARTOLOMEO", "PartitaIva": "00672310224", "IBAN": "IT48H0200801820000005620365", "SDI": "", "Tel": "0461913593", "Email": "cristina.bertolini.trento@farmarete.it" },
-            "850482": { "RagioneSociale": "FARM ROMANI DI ERRIGO A. E C. SNC", "PartitaIva": "02046850224", "IBAN": "IT24I0812034930000000125683", "SDI": "", "Tel": "3481636393", "Email": "farmaciaromanilavis@gmail.com" },
-            "P04015": { "RagioneSociale": "FARM POSTAL DR TANJA NART", "PartitaIva": "02427440215", "IBAN": "IT51S0811558493000307416008", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "P04154": { "RagioneSociale": "FARM SARNTAL DR REGENSBERGER", "PartitaIva": "02248070217", "IBAN": "IT59S0823358870000300009181", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "851936": { "RagioneSociale": "MAGAFARMA SRL", "PartitaIva": "02345010223", "IBAN": "IT22X0801634790000036022998", "SDI": "M5UXCR1", "Tel": "0465735159", "Email": "info@gagliardifarmacia.it" },
-            "856717": { "RagioneSociale": "FARM APOTECA ALTA BADIA SNC", "PartitaIva": "02932630219", "IBAN": "IT22A0306958183100000000363", "SDI": "", "Tel": "0471847152", "Email": "renzo@farmaonline.eu" },
-            "856596": { "RagioneSociale": "FARM VINOTTI SNC DI MARINCHEL & C", "PartitaIva": "02491630220", "IBAN": "IT11U0826305514000000332020", "SDI": "", "Tel": "0463468116", "Email": "" },
-            "858102": { "RagioneSociale": "FARM MOZART SNC JANACH/WINDISCH", "PartitaIva": "02969630215", "IBAN": "IT80I0585658220070571373800", "SDI": "", "Tel": "3481636393", "Email": "s.serretti@gppitaly.it" },
-            "856716": { "RagioneSociale": "FARM APOTECA CORVARA SAS", "PartitaIva": "02966630218", "IBAN": "IT94L0801058181000307014601", "SDI": "", "Tel": "0471830237", "Email": "renzo@apotecaaltabadia.com" },
-            "857999": { "RagioneSociale": "FARM MELTINA DR SUSANNE AUSSERER", "PartitaIva": "02559010216", "IBAN": "IT59X0826958580000304234898", "SDI": "IOTCCJS", "Tel": "0471667091", "Email": "susanne.ausserer@yahoo.it" },
-            "873712": { "RagioneSociale": "FARM FARMASOLIS SNC TOMASI M.&C", "PartitaIva": "02730480221", "IBAN": "IT18B0816305598000000500361", "SDI": "3RB98ZT", "Tel": "0463974185", "Email": "monica.tomasi.trento@farmarete.it" },
-            "859799": { "RagioneSociale": "FARM DOTT GIANLUCA ASCANIO &C SNC", "PartitaIva": "02465700223", "IBAN": "IT41W0816335750000110300389", "SDI": "", "Tel": "0463758177", "Email": "" },
-            "859643": { "RagioneSociale": "FARM SELLA GROSSRUBATSCHER DR F.", "PartitaIva": "02716510215", "IBAN": "IT15L0823858680000302022508", "SDI": "", "Tel": "0471796125", "Email": "ferdinando.grossrubatscher.bolzano@farmarete.it" },
-            "866829": { "RagioneSociale": "FARM BIFARINI SNC BIFARINI/HABASH", "PartitaIva": "02608720229", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0463722704", "Email": "farmaciabifarini@aruba.it" },
-            "866830": { "RagioneSociale": "FARM CAPPELLETTI MEZZOCORONA SNC", "PartitaIva": "02642820225", "IBAN": "IT32E0521634670000000002417", "SDI": "", "Tel": "0461601384", "Email": "info@farmaciacappellettimezzocorona.com" },
-            "867080": { "RagioneSociale": "FARM PARACELSUS SRL DR K.PICHLER", "PartitaIva": "03124720214", "IBAN": "IT04H0585659110001571471749", "SDI": "", "Tel": "0472764940", "Email": "" },
-            "865602": { "RagioneSociale": "FARM KRON APOTHEKE SNC", "PartitaIva": "02975840212", "IBAN": "IT19N0604559040000005006402", "SDI": "", "Tel": "0474548440", "Email": "farmaciakronapotheke@gmail.com" },
-            "866165": { "RagioneSociale": "FARM BRETTA DR GIORGIO & C SNC", "PartitaIva": "02568670224", "IBAN": "IT92F0802405625000005091640", "SDI": "", "Tel": "0465442174", "Email": "" },
-            "863044": { "RagioneSociale": "FARM CENTRALE U.NIEDEREGGER &CO SAS", "PartitaIva": "02977150214", "IBAN": "IT94J0813358593000040104935", "SDI": "", "Tel": "0473236826", "Email": "" },
-            "864540": { "RagioneSociale": "FARM RAM DI GERALD LANZINER", "PartitaIva": "03061160218", "IBAN": "IT46Z0100558590000000002782", "SDI": "P62QHVQ", "Tel": "04731090876", "Email": "" },
-            "860950": { "RagioneSociale": "FARM APOTHEKE ST. ELIAS", "PartitaIva": "02990630218", "IBAN": "IT95F0822058330000302002833", "SDI": "IOTCCJS", "Tel": "0471357212", "Email": "info@eliasapotheke.it" },
-            "861481": { "RagioneSociale": "FARM SCENA DRSA LADURNER MARION", "PartitaIva": "02573270218", "IBAN": "IT04M0585658880049571342006", "SDI": "IOTCCJS", "Tel": "0473945566", "Email": "marion.ladurner.bolzano@farmarete.it" },
-            "858589": { "RagioneSociale": "FARM RAM APOTHEKE SAS LANZINER & C", "PartitaIva": "02562090213", "IBAN": "IT13Q0100558590000000001952", "SDI": "P62QHVQ", "Tel": "0473656146", "Email": "" }
-        };
-
+        let databaseClienti = {};
         let datiClienteCorrente = null;
+
+        // Carica le anagrafiche condivise (un livello sopra questa cartella)
+        fetch("../anagrafiche.json")
+            .then(function (res) {
+                if (!res.ok) throw new Error("Impossibile caricare le anagrafiche.");
+                return res.json();
+            })
+            .then(function (dati) {
+                databaseClienti = dati;
+                const btn = document.getElementById("btnAccesso");
+                btn.disabled = false;
+                btn.innerText = "Accedi al Listino";
+            })
+            .catch(function (err) {
+                alert("Errore nel caricamento delle anagrafiche clienti: " + err.message);
+            });
 
         function iniziaCompilazione() {
             const codice = document.getElementById("codiceCliente").value.trim();
@@ -115,8 +87,8 @@
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            // Percorso relativo al PDF template (vuoto, con soli campi)
-            const urlPdfTarget = "/listino/listino.pdf";
+            // PDF specifico di questa cartella (Sacha)
+            const urlPdfTarget = "./listino.pdf";
 
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
                            `&RagioneSociale=${encodeURIComponent(datiClienteCorrente.RagioneSociale)}` +
@@ -126,7 +98,8 @@
                            `&Tel=${encodeURIComponent(datiClienteCorrente.Tel)}` +
                            `&Email=${encodeURIComponent(datiClienteCorrente.Email)}`;
 
-            document.getElementById("pdf-container").src = "./pdfjs/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
+            // Viewer PDF.js condiviso (un livello sopra questa cartella)
+            document.getElementById("pdf-container").src = "../pdfjs/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
         }
 
         async function inviaOrdine() {
@@ -152,9 +125,6 @@
                 const storage = pdfDoc.annotationStorage;
                 const fieldObjectsMap = await pdfDoc.getFieldObjects();
 
-                // Costruiamo un oggetto PULITO chiave/valore: nome campo -> valore digitato
-                // (usiamo annotationStorage.getValue per prendere il valore REALE inserito
-                // dall'utente, non il valore di default salvato nel PDF)
                 for (const nomeCampo in fieldObjectsMap) {
                     const listaCampi = fieldObjectsMap[nomeCampo];
                     listaCampi.forEach(function (campo) {
@@ -179,7 +149,6 @@
                 "SDI": datiClienteCorrente.SDI,
                 "Tel": datiClienteCorrente.Tel,
                 "Email": datiClienteCorrente.Email,
-                // Oggetto piatto e pulito, pronto per "Analizza JSON" nel flow
                 "QuantitaOrdinate": JSON.stringify(datiModulo)
             };
 
