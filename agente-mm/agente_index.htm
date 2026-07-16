@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marco Mazzurana - GPP Health</title>
+<style>
+    :root {
+        --blu: #0d3b66;
+        --blu-scuro: #082744;
+        --rosso: #c0392b;
+        --grigio-testo: #5b6b7c;
+        --sfondo: #f4f6f9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: var(--sfondo);
+        color: #2c3e50;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .header-brand {
+        width: 100%;
+        background-color: var(--blu);
+        padding: 18px 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .header-brand .logo-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .header-brand .logo-mark::after {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--rosso);
+    }
+
+    .header-brand span {
+        color: white;
+        font-weight: 600;
+        font-size: 18px;
+        letter-spacing: 0.3px;
+    }
+
+    main {
+        width: 100%;
+        max-width: 480px;
+        padding: 40px 20px 60px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        background: white;
+        width: 100%;
+        border-radius: 14px;
+        box-shadow: 0 6px 24px rgba(13,59,102,0.10);
+        overflow: hidden;
+        border-top: 5px solid var(--rosso);
+    }
+
+    .card-top {
+        padding: 36px 32px 24px 32px;
+        text-align: center;
+    }
+
+    .avatar {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        background: var(--blu);
+        color: white;
+        font-size: 30px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 18px auto;
+    }
+
+    .card-top h1 {
+        margin: 0 0 4px 0;
+        font-size: 22px;
+        color: var(--blu-scuro);
+    }
+
+    .card-top p.ruolo {
+        margin: 0;
+        color: var(--grigio-testo);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .contatti {
+        border-top: 1px solid #eef1f5;
+        padding: 22px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .contatto-riga {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+    }
+
+    .contatto-riga .icona {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--sfondo);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 16px;
+    }
+
+    .contatto-riga a {
+        color: var(--blu-scuro);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .contatto-riga a:hover { text-decoration: underline; }
+
+    .cta-zona {
+        padding: 8px 32px 32px 32px;
+    }
+
+    .cta-zona p {
+        font-size: 13.5px;
+        color: var(--grigio-testo);
+        margin: 0 0 16px 0;
+        line-height: 1.5;
+    }
+
+    .btn-richiedi {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background-color: var(--rosso);
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15.5px;
+        padding: 14px 20px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+        box-shadow: 0 3px 10px rgba(192,57,43,0.25);
+    }
+    .btn-richiedi:hover { background-color: #a5301f; }
+
+    footer {
+        margin-top: 26px;
+        font-size: 12.5px;
+        color: #9aa7b5;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+
+    <div class="header-brand">
+        <div class="logo-mark"></div>
+        <span>GPP Health</span>
+    </div>
+
+    <main>
+        <div class="card">
+            <div class="card-top">
+                <div class="avatar">MM</div>
+                <h1>Marco Mazzurana</h1>
+                <p class="ruolo">Agente di zona &mdash; GPP Health</p>
+            </div>
+
+            <div class="contatti">
+                <div class="contatto-riga">
+                    <div class="icona">&#128222;</div>
+                    <a href="tel:+393385078087">+39 338 5078087</a>
+                </div>
+                <div class="contatto-riga">
+                    <div class="icona">&#9993;</div>
+                    <a href="mailto:m.mazzurana@gppitaly.it">m.mazzurana@gppitaly.it</a>
+                </div>
+            </div>
+
+            <div class="cta-zona">
+                <p>Vuoi maggiori informazioni sulla promozione Malesci o preferisci essere ricontattato per una visita in farmacia? Richiedila al nostro supporto clienti: penseremo noi a coordinarci con l'agente di zona.</p>
+                <a class="btn-richiedi" id="linkRichiesta" href="#">Richiedi una visita</a>
+            </div>
+        </div>
+
+        <footer>Global Pharmacies Partner Health &mdash; Customer Service GPP Health</footer>
+    </main>
+
+    <script>
+        const destinatario = "servizioclienti@gppitaly.it";
+        const cc = "m.mazzurana@gppitaly.it";
+        const oggetto = "Richiesta Informativa Promozione Malesci";
+        const corpo =
+            "Gentile Servizio Clienti GPP Health,\n\n" +
+            "vorrei ricevere maggiori informazioni sulla promozione Malesci attualmente in corso.\n\n" +
+            "Sarei inoltre interessato/a a fissare una visita in farmacia con l'agente di zona Marco Mazzurana, per approfondire i dettagli e valutare insieme le condizioni più adatte alla mia farmacia.\n\n" +
+            "Resto in attesa di un vostro riscontro.\n\n" +
+            "Cordiali saluti";
+
+        const link = "mailto:" + encodeURIComponent(destinatario)
+            + "?cc=" + encodeURIComponent(cc)
+            + "&subject=" + encodeURIComponent(oggetto)
+            + "&body=" + encodeURIComponent(corpo);
+
+        document.getElementById("linkRichiesta").setAttribute("href", link);
+    </script>
+
+</body>
+</html>
