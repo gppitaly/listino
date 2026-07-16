@@ -40,19 +40,18 @@
         width: 34px;
         height: 34px;
         border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
         background: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
-        flex-shrink: 0;
     }
-    .header-brand .logo-mark::after {
-        content: "";
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: var(--rosso);
+    .header-brand .logo-mark img {
+        width: 78%;
+        height: 78%;
+        object-fit: contain;
+        display: block;
     }
 
     .header-brand span {
@@ -185,8 +184,8 @@
 <body>
 
     <div class="header-brand">
-        <div class="logo-mark"></div>
-        <span>GPP Health</span>
+        <div class="logo-mark"><img src="logo.png" alt="GPP"></div>
+        <span>GPP</span>
     </div>
 
     <main>
@@ -194,7 +193,7 @@
             <div class="card-top">
                 <div class="avatar">MM</div>
                 <h1>Marco Mazzurana</h1>
-                <p class="ruolo">Agente di zona &mdash; GPP Health</p>
+                <p class="ruolo">Agente di zona &mdash; GPP</p>
             </div>
 
             <div class="contatti">
