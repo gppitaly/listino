@@ -25,6 +25,89 @@
         #pdf-container { width: 100%; height: calc(100vh - 70px); border: none; }
 
         #statusBar { text-align: center; padding: 6px; font-size: 13px; font-weight: bold; }
+
+        /* ---- Modale consenso privacy ---- */
+        #overlayPrivacy {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(13, 59, 102, 0.55);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #modalePrivacy {
+            background: white;
+            max-width: 520px;
+            width: 100%;
+            border-radius: 12px;
+            padding: 28px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            max-height: 85vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        #modalePrivacy h2 {
+            margin: 0 0 14px 0;
+            color: #0d3b66;
+            font-size: 18px;
+        }
+        #modalePrivacy p {
+            font-size: 13.5px;
+            line-height: 1.55;
+            color: #34495e;
+            margin: 0 0 12px 0;
+        }
+        #modalePrivacy a {
+            color: #0d3b66;
+            font-weight: 600;
+        }
+        .riga-consenso {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f4f6f9;
+            border-radius: 8px;
+            padding: 14px;
+            margin: 14px 0;
+        }
+        .riga-consenso input[type="checkbox"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        .riga-consenso label {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+        .pulsanti-modale {
+            display: flex;
+            gap: 12px;
+        }
+        .pulsanti-modale button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            font-size: 14.5px;
+            cursor: pointer;
+        }
+        #btnAnnullaPrivacy {
+            background: #eef1f5;
+            color: #5b6b7c;
+        }
+        #btnConfermaPrivacy {
+            background: #2ecc71;
+            color: white;
+        }
+        #btnConfermaPrivacy:disabled {
+            background: #9aa7b5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -47,11 +130,52 @@
                 <p id="info-farmacia">Caricamento dicitura farmacia...</p>
             </div>
             <div>
-                <button id="btnInvia" class="btn-invia" onclick="inviaOrdine()">Conferma e Invia Ordine</button>
+                <button id="btnInvia" class="btn-invia" onclick="avviaProceduraInvio()">Conferma e Invia Ordine</button>
             </div>
         </div>
         <div id="statusBar"></div>
         <iframe id="pdf-container" src=""></iframe>
+    </div>
+
+    <!-- MODALE CONSENSO PRIVACY -->
+    <div id="overlayPrivacy">
+        <div id="modalePrivacy">
+            <h2>Informativa sul trattamento dei dati personali</h2>
+            <p>
+                Ai sensi degli artt. 13-14 del Regolamento (UE) 2016/679, Global Pharmacies Partner Health S.r.l.
+                (Titolare del trattamento) raccoglie e tratta i dati della Sua farmacia per finalità
+                amministrativo-contabili legate all'evasione dell'ordine e, previo Suo consenso, per l'invio di
+                comunicazioni email relative a promozioni e iniziative analoghe.
+            </p>
+            <p>
+                Può consultare l'informativa completa, i Suoi diritti e le modalità di revoca del consenso
+                sulla pagina ufficiale:
+                <a href="https://www.gppitaly.it/privacy-policy/" target="_blank" rel="noopener">
+                    www.gppitaly.it/privacy-policy
+                </a>
+            </p>
+
+            <div class="riga-consenso">
+                <input type="checkbox" id="checkPresaVisione">
+                <label for="checkPresaVisione">
+                    Dichiaro di aver preso visione dell'informativa sul trattamento dei dati personali necessari
+                    all'evasione del presente ordine.
+                </label>
+            </div>
+
+            <div class="riga-consenso">
+                <input type="checkbox" id="checkConsensoMarketing">
+                <label for="checkConsensoMarketing">
+                    Acconsento al trattamento dei miei dati per la comunicazione via email di promozioni e
+                    iniziative analoghe da parte di GPP Health. Il consenso può essere revocato in qualsiasi momento.
+                </label>
+            </div>
+
+            <div class="pulsanti-modale">
+                <button id="btnAnnullaPrivacy" onclick="chiudiModalePrivacy()">Annulla</button>
+                <button id="btnConfermaPrivacy" disabled onclick="confermaConsensoEInvia()">Confermo e invio</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -87,7 +211,7 @@
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            // PDF specifico di questa cartella (Sacha)
+            // PDF specifico di questa cartella
             const urlPdfTarget = "/listino/s/listino.pdf";
 
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
@@ -102,9 +226,38 @@
             document.getElementById("pdf-container").src = "../pdfjs/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
         }
 
-        async function inviaOrdine() {
+        // STEP 1: click su "Conferma e Invia Ordine" -> conferma di base -> apre modale privacy
+        function avviaProceduraInvio() {
             if (!datiClienteCorrente) return;
             if (!confirm("Sei sicuro di voler inviare l'ordine?")) return;
+            apriModalePrivacy();
+        }
+
+        function apriModalePrivacy() {
+            document.getElementById("checkPresaVisione").checked = false;
+            document.getElementById("checkConsensoMarketing").checked = false;
+            document.getElementById("btnConfermaPrivacy").disabled = true;
+            document.getElementById("overlayPrivacy").style.display = "flex";
+        }
+
+        function chiudiModalePrivacy() {
+            document.getElementById("overlayPrivacy").style.display = "none";
+        }
+
+        // Il bottone di conferma si abilita SOLO con la presa visione (obbligatoria);
+        // il consenso marketing resta indipendente e facoltativo
+        document.getElementById("checkPresaVisione").addEventListener("change", function () {
+            document.getElementById("btnConfermaPrivacy").disabled = !this.checked;
+        });
+
+        // STEP 2: consenso confermato -> chiude il modale e procede con l'invio vero e proprio
+        function confermaConsensoEInvia() {
+            chiudiModalePrivacy();
+            inviaOrdine();
+        }
+
+        async function inviaOrdine() {
+            if (!datiClienteCorrente) return;
 
             const btn = document.getElementById("btnInvia");
             const statusBar = document.getElementById("statusBar");
@@ -149,7 +302,9 @@
                 "SDI": datiClienteCorrente.SDI,
                 "Tel": datiClienteCorrente.Tel,
                 "Email": datiClienteCorrente.Email,
-                "QuantitaOrdinate": JSON.stringify(datiModulo)
+                "QuantitaOrdinate": JSON.stringify(datiModulo),
+                "PresaVisionePrivacy": "Sì",
+                "ConsensoMarketing": document.getElementById("checkConsensoMarketing").checked ? "Sì" : "No"
             };
 
             statusBar.innerText = "Invio ordine in corso...";
@@ -161,7 +316,7 @@
             })
             .then(function (response) {
                 if (response.ok) {
-                    statusBar.style.color = "#1e8449";
+                    statusBar.style.color = "#1e8409";
                     statusBar.innerText = "Ordine inviato ed elaborato correttamente!";
                     alert("Ordine inviato ed elaborato correttamente!");
                 } else {
