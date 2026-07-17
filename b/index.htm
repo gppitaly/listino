@@ -70,7 +70,7 @@
             background: #f4f6f9;
             border-radius: 8px;
             padding: 14px;
-            margin: 18px 0 22px 0;
+            margin: 14px 0;
         }
         .riga-consenso input[type="checkbox"] {
             margin-top: 3px;
@@ -83,6 +83,16 @@
             line-height: 1.5;
             color: #2c3e50;
         }
+        .riga-consenso .etichetta-tipo {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 3px;
+        }
+        .riga-consenso.obbligatoria .etichetta-tipo { color: #c0392b; }
+        .riga-consenso.facoltativa .etichetta-tipo { color: #5b6b7c; }
         .pulsanti-modale {
             display: flex;
             gap: 12px;
@@ -156,11 +166,21 @@
                 </a>
             </p>
 
-            <div class="riga-consenso">
-                <input type="checkbox" id="checkConsensoPrivacy">
-                <label for="checkConsensoPrivacy">
-                    Dichiaro di aver preso visione dell'informativa privacy e acconsento al trattamento dei miei
-                    dati per la comunicazione via email di promozioni e iniziative analoghe da parte di GPP Health.
+            <div class="riga-consenso obbligatoria">
+                <input type="checkbox" id="checkPresaVisione">
+                <label for="checkPresaVisione">
+                    <span class="etichetta-tipo">Obbligatorio per procedere</span>
+                    Dichiaro di aver preso visione dell'informativa sul trattamento dei dati personali necessari
+                    all'evasione del presente ordine.
+                </label>
+            </div>
+
+            <div class="riga-consenso facoltativa">
+                <input type="checkbox" id="checkConsensoMarketing">
+                <label for="checkConsensoMarketing">
+                    <span class="etichetta-tipo">Facoltativo</span>
+                    Acconsento al trattamento dei miei dati per la comunicazione via email di promozioni e
+                    iniziative analoghe da parte di GPP Health. Il consenso può essere revocato in qualsiasi momento.
                 </label>
             </div>
 
@@ -227,7 +247,8 @@
         }
 
         function apriModalePrivacy() {
-            document.getElementById("checkConsensoPrivacy").checked = false;
+            document.getElementById("checkPresaVisione").checked = false;
+            document.getElementById("checkConsensoMarketing").checked = false;
             document.getElementById("btnConfermaPrivacy").disabled = true;
             document.getElementById("overlayPrivacy").style.display = "flex";
         }
@@ -236,8 +257,9 @@
             document.getElementById("overlayPrivacy").style.display = "none";
         }
 
-        // Abilita il bottone di conferma solo se la checkbox è spuntata
-        document.getElementById("checkConsensoPrivacy").addEventListener("change", function () {
+        // Il bottone di conferma si abilita SOLO con la presa visione (obbligatoria);
+        // il consenso marketing resta indipendente e facoltativo
+        document.getElementById("checkPresaVisione").addEventListener("change", function () {
             document.getElementById("btnConfermaPrivacy").disabled = !this.checked;
         });
 
@@ -294,7 +316,8 @@
                 "Tel": datiClienteCorrente.Tel,
                 "Email": datiClienteCorrente.Email,
                 "QuantitaOrdinate": JSON.stringify(datiModulo),
-                "ConsensoPrivacy": "Sì"
+                "PresaVisionePrivacy": "Sì",
+                "ConsensoMarketing": document.getElementById("checkConsensoMarketing").checked ? "Sì" : "No"
             };
 
             statusBar.innerText = "Invio ordine in corso...";
