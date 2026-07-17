@@ -83,16 +83,6 @@
             line-height: 1.5;
             color: #2c3e50;
         }
-        .riga-consenso .etichetta-tipo {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 3px;
-        }
-        .riga-consenso.obbligatoria .etichetta-tipo { color: #c0392b; }
-        .riga-consenso.facoltativa .etichetta-tipo { color: #5b6b7c; }
         .pulsanti-modale {
             display: flex;
             gap: 12px;
@@ -153,10 +143,9 @@
             <h2>Informativa sul trattamento dei dati personali</h2>
             <p>
                 Ai sensi degli artt. 13-14 del Regolamento (UE) 2016/679, Global Pharmacies Partner Health S.r.l.
-                (Titolare del trattamento) raccoglie e tratta i dati identificativi e di contatto della Sua farmacia
-                (ragione sociale, indirizzo, email, telefono, partita IVA) per finalità amministrativo-contabili
-                legate all'evasione dell'ordine e, previo Suo consenso, per l'invio di comunicazioni email relative
-                a promozioni e iniziative analoghe.
+                (Titolare del trattamento) raccoglie e tratta i dati della Sua farmacia per finalità
+                amministrativo-contabili legate all'evasione dell'ordine e, previo Suo consenso, per l'invio di
+                comunicazioni email relative a promozioni e iniziative analoghe.
             </p>
             <p>
                 Può consultare l'informativa completa, i Suoi diritti e le modalità di revoca del consenso
@@ -166,19 +155,17 @@
                 </a>
             </p>
 
-            <div class="riga-consenso obbligatoria">
+            <div class="riga-consenso">
                 <input type="checkbox" id="checkPresaVisione">
                 <label for="checkPresaVisione">
-                    <span class="etichetta-tipo">Obbligatorio per procedere</span>
                     Dichiaro di aver preso visione dell'informativa sul trattamento dei dati personali necessari
                     all'evasione del presente ordine.
                 </label>
             </div>
 
-            <div class="riga-consenso facoltativa">
+            <div class="riga-consenso">
                 <input type="checkbox" id="checkConsensoMarketing">
                 <label for="checkConsensoMarketing">
-                    <span class="etichetta-tipo">Facoltativo</span>
                     Acconsento al trattamento dei miei dati per la comunicazione via email di promozioni e
                     iniziative analoghe da parte di GPP Health. Il consenso può essere revocato in qualsiasi momento.
                 </label>
