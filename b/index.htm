@@ -6,9 +6,37 @@
     <style>
         body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
 
-        .header { background-color: #0d3b66; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); height: 70px; box-sizing: border-box; }
+        .header { background-color: #0d3b66; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); min-height: 70px; box-sizing: border-box; flex-wrap: wrap; gap: 10px; }
         .header-titoli h1 { margin: 0; font-size: 20px; font-weight: 600; }
         .header-titoli p { margin: 3px 0 0 0; font-size: 14px; opacity: 0.9; }
+
+        .header-destra { display: flex; align-items: center; gap: 16px; }
+
+        /* ---- Box riepilogo quantità (live) ---- */
+        #boxRiepilogo {
+            background: rgba(255,255,255,0.12);
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            padding: 8px 16px;
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        #boxRiepilogo.completo {
+            border-color: #2ecc71;
+        }
+        #boxRiepilogo .etichetta {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #cfd9e3;
+            margin: 0;
+        }
+        #boxRiepilogo .valore {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
 
         .btn-invia { background-color: #2ecc71; color: white; border: none; padding: 12px 28px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
         .btn-invia:hover { background-color: #27ae60; }
@@ -39,7 +67,7 @@
         }
         #modalePrivacy {
             background: white;
-            max-width: 520px;
+            max-width: 480px;
             width: 100%;
             border-radius: 12px;
             padding: 28px 30px;
@@ -49,19 +77,9 @@
             box-sizing: border-box;
         }
         #modalePrivacy h2 {
-            margin: 0 0 14px 0;
+            margin: 0 0 18px 0;
             color: #0d3b66;
             font-size: 18px;
-        }
-        #modalePrivacy p {
-            font-size: 13.5px;
-            line-height: 1.55;
-            color: #34495e;
-            margin: 0 0 12px 0;
-        }
-        #modalePrivacy a {
-            color: #0d3b66;
-            font-weight: 600;
         }
         .riga-consenso {
             display: flex;
@@ -83,9 +101,14 @@
             line-height: 1.5;
             color: #2c3e50;
         }
+        .riga-consenso a {
+            color: #0d3b66;
+            font-weight: 600;
+        }
         .pulsanti-modale {
             display: flex;
             gap: 12px;
+            margin-top: 8px;
         }
         .pulsanti-modale button {
             flex: 1;
@@ -129,7 +152,11 @@
                 <h1>Compilazione Listino Ordini</h1>
                 <p id="info-farmacia">Caricamento dicitura farmacia...</p>
             </div>
-            <div>
+            <div class="header-destra">
+                <div id="boxRiepilogo">
+                    <p class="etichetta">Totale pezzi</p>
+                    <p class="valore" id="valoreTotalePezzi">0 / 50</p>
+                </div>
                 <button id="btnInvia" class="btn-invia" onclick="avviaProceduraInvio()">Conferma e Invia Ordine</button>
             </div>
         </div>
@@ -140,34 +167,21 @@
     <!-- MODALE CONSENSO PRIVACY -->
     <div id="overlayPrivacy">
         <div id="modalePrivacy">
-            <h2>Informativa sul trattamento dei dati personali</h2>
-            <p>
-                Ai sensi degli artt. 13-14 del Regolamento (UE) 2016/679, Global Pharmacies Partner Health S.r.l.
-                (Titolare del trattamento) raccoglie e tratta i dati della Sua farmacia per finalità
-                amministrativo-contabili legate all'evasione dell'ordine e, previo Suo consenso, per l'invio di
-                comunicazioni email relative a promozioni e iniziative analoghe.
-            </p>
-            <p>
-                Può consultare l'informativa completa, i Suoi diritti e le modalità di revoca del consenso
-                sulla pagina ufficiale:
-                <a href="https://www.gppitaly.it/privacy-policy/" target="_blank" rel="noopener">
-                    www.gppitaly.it/privacy-policy
-                </a>
-            </p>
-
-            <div class="riga-consenso">
-                <input type="checkbox" id="checkPresaVisione">
-                <label for="checkPresaVisione">
-                    Dichiaro di aver preso visione dell'informativa sul trattamento dei dati personali necessari
-                    all'evasione del presente ordine.
-                </label>
-            </div>
+            <h2>Prima di inviare l'ordine</h2>
 
             <div class="riga-consenso">
                 <input type="checkbox" id="checkConsensoMarketing">
                 <label for="checkConsensoMarketing">
-                    Acconsento al trattamento dei miei dati per la comunicazione via email di promozioni e
-                    iniziative analoghe da parte di GPP Health. Il consenso può essere revocato in qualsiasi momento.
+                    Sì, desidero ricevere comunicazioni e promozioni commerciali via email.
+                    È possibile <a href="#" id="linkAnnullaIscrizione">annullare l'iscrizione</a> in qualsiasi momento.
+                </label>
+            </div>
+
+            <div class="riga-consenso">
+                <input type="checkbox" id="checkPresaVisione">
+                <label for="checkPresaVisione">
+                    Sì, accetto la
+                    <a href="https://www.gppitaly.it/privacy-policy/" target="_blank" rel="noopener">Politica sulla protezione dei dati personali</a>.
                 </label>
             </div>
 
@@ -181,6 +195,10 @@
     <script>
         let databaseClienti = {};
         let datiClienteCorrente = null;
+        let intervalloRiepilogo = null;
+
+        // Campi del PDF che NON sono prodotti (esclusi dal conteggio quantità)
+        const CAMPI_NON_PRODOTTO = ['CodiceCliente', 'RagioneSociale', 'PartitaIva', 'IBAN', 'SDI', 'Tel', 'Email', 'Note', 'Invio'];
 
         // Carica le anagrafiche condivise (un livello sopra questa cartella)
         fetch("../anagrafiche.json")
@@ -211,7 +229,7 @@
             document.getElementById("schermataCompilazione").style.display = "flex";
             document.getElementById("info-farmacia").innerText = datiClienteCorrente.RagioneSociale + " (Cod: " + codice + ")";
 
-            // PDF specifico di questa cartella
+            // PDF specifico di questa cartella (Barbara)
             const urlPdfTarget = "/listino/b/listino.pdf";
 
             const params = `#CodiceCliente=${encodeURIComponent(codice)}` +
@@ -224,11 +242,75 @@
 
             // Viewer PDF.js condiviso (un livello sopra questa cartella)
             document.getElementById("pdf-container").src = "../pdfjs/web/viewer.html?file=" + encodeURIComponent(urlPdfTarget) + params;
+
+            // Avvia l'aggiornamento periodico del contatore quantità (ogni 900ms)
+            if (intervalloRiepilogo) clearInterval(intervalloRiepilogo);
+            intervalloRiepilogo = setInterval(aggiornaRiepilogoQuantita, 900);
         }
 
-        // STEP 1: click su "Conferma e Invia Ordine" -> conferma di base -> apre modale privacy
-        function avviaProceduraInvio() {
+        // Legge i valori correnti dei campi modulo del PDF (usato sia dal contatore live sia dall'invio finale)
+        async function leggiDatiModulo() {
+            const iframe = document.getElementById("pdf-container");
+            const pdfApp = iframe.contentWindow && iframe.contentWindow.PDFViewerApplication;
+            if (!pdfApp || !pdfApp.pdfDocument) return null;
+
+            const pdfDoc = pdfApp.pdfDocument;
+            const storage = pdfDoc.annotationStorage;
+            const fieldObjectsMap = await pdfDoc.getFieldObjects();
+
+            const datiModulo = {};
+            for (const nomeCampo in fieldObjectsMap) {
+                const listaCampi = fieldObjectsMap[nomeCampo];
+                listaCampi.forEach(function (campo) {
+                    const risultato = storage.getValue(campo.id, { value: campo.value });
+                    datiModulo[nomeCampo] = risultato.value;
+                });
+            }
+            return datiModulo;
+        }
+
+        function calcolaTotalePezzi(datiModulo) {
+            let totale = 0;
+            for (const chiave in datiModulo) {
+                if (CAMPI_NON_PRODOTTO.includes(chiave)) continue;
+                const valore = parseInt(datiModulo[chiave], 10);
+                if (!isNaN(valore)) totale += valore;
+            }
+            return totale;
+        }
+
+        async function aggiornaRiepilogoQuantita() {
+            const datiModulo = await leggiDatiModulo();
+            if (!datiModulo) return;
+
+            const totale = calcolaTotalePezzi(datiModulo);
+            const box = document.getElementById("boxRiepilogo");
+            const valore = document.getElementById("valoreTotalePezzi");
+
+            valore.innerText = totale + " / 50";
+            if (totale >= 50) {
+                box.classList.add("completo");
+            } else {
+                box.classList.remove("completo");
+            }
+        }
+
+        // STEP 1: click su "Conferma e Invia Ordine" -> verifica quantità minima -> conferma -> apre modale privacy
+        async function avviaProceduraInvio() {
             if (!datiClienteCorrente) return;
+
+            const datiModulo = await leggiDatiModulo();
+            if (!datiModulo) {
+                alert("Il documento PDF non è ancora pronto. Attendi il caricamento completo e riprova.");
+                return;
+            }
+
+            const totale = calcolaTotalePezzi(datiModulo);
+            if (totale < 50) {
+                alert("La quantità minima ordinabile è 50 pezzi assortiti.\nHai inserito: " + totale + " pezzi.\nAggiungi altri prodotti prima di inviare l'ordine.");
+                return;
+            }
+
             if (!confirm("Sei sicuro di voler inviare l'ordine?")) return;
             apriModalePrivacy();
         }
@@ -244,10 +326,22 @@
             document.getElementById("overlayPrivacy").style.display = "none";
         }
 
-        // Il bottone di conferma si abilita SOLO con la presa visione (obbligatoria);
+        // Il bottone di conferma si abilita SOLO con l'accettazione della privacy policy (obbligatoria);
         // il consenso marketing resta indipendente e facoltativo
         document.getElementById("checkPresaVisione").addEventListener("change", function () {
             document.getElementById("btnConfermaPrivacy").disabled = !this.checked;
+        });
+
+        // Link "annullare l'iscrizione": apre il client email precompilato verso privacy@gppitaly.it
+        document.getElementById("linkAnnullaIscrizione").addEventListener("click", function (e) {
+            e.preventDefault();
+            const oggetto = "Richiesta cancellazione iscrizione comunicazioni commerciali";
+            const corpo = "Gentile Servizio Privacy GPP Health,\n\n" +
+                "Vi chiedo di annullare la mia iscrizione alle comunicazioni commerciali e promozionali via email.\n\n" +
+                "Farmacia: \nCodice Cliente: \n\nCordiali saluti";
+            window.location.href = "mailto:" + encodeURIComponent("privacy@gppitaly.it")
+                + "?subject=" + encodeURIComponent(oggetto)
+                + "&body=" + encodeURIComponent(corpo);
         });
 
         // STEP 2: consenso confermato -> chiude il modale e procede con l'invio vero e proprio
@@ -265,26 +359,10 @@
             statusBar.style.color = "#7f8c8d";
             statusBar.innerText = "Lettura dati dal modulo in corso...";
 
-            const iframe = document.getElementById("pdf-container");
-            let datiModulo = {};
-
+            let datiModulo;
             try {
-                const pdfApp = iframe.contentWindow.PDFViewerApplication;
-                if (!pdfApp || !pdfApp.pdfDocument) {
-                    throw new Error("Il documento PDF non è ancora pronto. Attendi il caricamento completo e riprova.");
-                }
-
-                const pdfDoc = pdfApp.pdfDocument;
-                const storage = pdfDoc.annotationStorage;
-                const fieldObjectsMap = await pdfDoc.getFieldObjects();
-
-                for (const nomeCampo in fieldObjectsMap) {
-                    const listaCampi = fieldObjectsMap[nomeCampo];
-                    listaCampi.forEach(function (campo) {
-                        const risultato = storage.getValue(campo.id, { value: campo.value });
-                        datiModulo[nomeCampo] = risultato.value;
-                    });
-                }
+                datiModulo = await leggiDatiModulo();
+                if (!datiModulo) throw new Error("Il documento PDF non è ancora pronto. Attendi il caricamento completo e riprova.");
             } catch (e) {
                 statusBar.style.color = "#c0392b";
                 statusBar.innerText = "Errore lettura PDF: " + e.message;
@@ -319,6 +397,7 @@
                     statusBar.style.color = "#1e8409";
                     statusBar.innerText = "Ordine inviato ed elaborato correttamente!";
                     alert("Ordine inviato ed elaborato correttamente!");
+                    if (intervalloRiepilogo) clearInterval(intervalloRiepilogo);
                 } else {
                     throw new Error("Il server ha risposto con stato " + response.status);
                 }
